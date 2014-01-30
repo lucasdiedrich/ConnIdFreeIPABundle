@@ -1,0 +1,4 @@
+ConnIdFreeIPABundle
+===================
+
+ConnId: FreeIPA bundle
