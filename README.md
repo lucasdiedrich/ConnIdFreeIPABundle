@@ -1,4 +1,4 @@
 ConnIdFreeIPABundle
 ===================
 
-ConnId: FreeIPA bundle
+ConnId: [FreeIPA](http://www.freeipa.org/) bundle
