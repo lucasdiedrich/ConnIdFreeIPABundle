@@ -20,22 +20,34 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.util;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+public enum AuthResults {
 
-public class FreeIPAConfiguration extends LdapConfiguration {
-    private boolean trustAllCerts;
-    
-    
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+    AUTH_SUCCESS("SUCCESS"),
+    AUTH_GENERIC_ERROR("NEVER"),
+    AUTH_PASSWORD_EXPIRED("[LDAP: error code 49 - Invalid Credentials]"),
+    AUTH_NO_SUCH_OBJECT("[LDAP: error code 32 - No Such Object]"),
+    AUTH_INVALID_CREDENTIALS("[LDAP: error code 49 - Invalid Credentials]");
+
+    private final String cause;
+
+    private AuthResults(final String cause) {
+        this.cause = cause;
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    @Override
+    public String toString() {
+        return cause;
+    }
+
+    public static AuthResults fromValue(final String cause) {
+        AuthResults ex = AUTH_GENERIC_ERROR;
+        for (final AuthResults exceptionTranslator : values()) {
+            if (cause.equalsIgnoreCase(exceptionTranslator.toString())) {
+                ex = exceptionTranslator;
+            }
+        }
+        return ex;
     }
 }

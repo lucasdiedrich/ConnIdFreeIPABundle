@@ -22,20 +22,19 @@
  */
 package org.connid.bundles.freeipa;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
-    private boolean trustAllCerts;
-    
-    
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+public class FreeIPAConfigurationTests {
+
+    @Test
+    public void freeIPAConfigurationTest() {
+        final FreeIPAConfiguration freeIPAConfiguration = ConnectorObjectFactory.
+                configurationWithRightUsernameAndPassword();
+        assertFalse(freeIPAConfiguration.isSsl());
+        assertEquals(389, freeIPAConfiguration.getPort());
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
-    }
 }

@@ -20,22 +20,25 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.it;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
-    private boolean trustAllCerts;
+public class FreeIPACheckAliveTest {
     
+    private final FreeIPAConnector freeIPAConnector = new FreeIPAConnector();
     
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+    @Before
+    public void before() {
+        freeIPAConnector.init(ConnectorObjectFactory.configurationWithRightUsernameAndPassword());
     }
-
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    
+    @Test
+    public void freeIPACheckAliveTest() {
+        freeIPAConnector.checkAlive();
     }
+    
 }

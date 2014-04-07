@@ -20,22 +20,28 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.util;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.X509TrustManager;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
-    private boolean trustAllCerts;
-    
-    
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+public class TrustAllTrustManager implements X509TrustManager {
+
+    @Override
+    public void checkClientTrusted(X509Certificate[] xcs, String string)
+            throws CertificateException {
+        // do nothing
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    @Override
+    public void checkServerTrusted(X509Certificate[] xcs, String string)
+            throws CertificateException {
+        // do nothing
+    }
+
+    @Override
+    public X509Certificate[] getAcceptedIssuers() {
+        return new java.security.cert.X509Certificate[0];
     }
 }

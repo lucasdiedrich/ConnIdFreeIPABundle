@@ -20,22 +20,39 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.exceptions;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.connid.bundles.freeipa.util.AuthResults;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
-    private boolean trustAllCerts;
-    
-    
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+public class FreeIPAException extends RuntimeException {
+
+    private static final long serialVersionUID = 8453757915892769284L;
+
+    private AuthResults exceptionCause;
+
+    public FreeIPAException(AuthResults exceptionCause) {
+        this.exceptionCause = exceptionCause;
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    public FreeIPAException(AuthResults exceptionCause, Throwable cause) {
+        super(cause);
+        this.exceptionCause = exceptionCause;
     }
+
+    public FreeIPAException(final Throwable cause) {
+        super(cause);
+    }
+
+    public FreeIPAException(final String message) {
+        super(message);
+    }
+
+    public FreeIPAException(final String message, final Exception e) {
+        super(message, e);
+    }
+
+    public AuthResults getExceptionCause() {
+        return exceptionCause;
+    }
+
 }
