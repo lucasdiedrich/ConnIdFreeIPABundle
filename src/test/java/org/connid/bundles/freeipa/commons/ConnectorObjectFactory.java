@@ -69,6 +69,7 @@ public class ConnectorObjectFactory {
         
         freeIPAConfiguration.setBaseContexts(freeipaServerProperties.getString("freeipa.server.tree.basecontext"));
         freeIPAConfiguration.setHost(freeipaServerProperties.getString("freeipa.server.host"));
+        freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
         return freeIPAConfiguration;
     }
 }

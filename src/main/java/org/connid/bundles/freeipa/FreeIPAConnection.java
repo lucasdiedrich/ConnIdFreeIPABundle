@@ -38,7 +38,9 @@ import org.connid.bundles.freeipa.util.ConnectorUtils;
 import org.connid.bundles.freeipa.util.AuthResults;
 import org.connid.bundles.freeipa.util.TrustAllSocketFactory;
 import org.connid.bundles.ldap.LdapConnection;
+import org.identityconnectors.common.Pair;
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 
 public class FreeIPAConnection extends LdapConnection {
@@ -61,16 +63,21 @@ public class FreeIPAConnection extends LdapConnection {
     @Override
     public LdapContext getInitialContext() throws FreeIPAException {
         if (initCtx == null) {
-            initCtx = createInitialContex();
+            initCtx = createInitialContex(authenticateWithConfiguration()).second;
         }
         return initCtx;
     }
 
-    private LdapContext createInitialContex() throws FreeIPAException {
+    public AuthResults login(final String principal, final GuardedString password) throws FreeIPAException {
+        return createInitialContex(authenticateWithUsernameAndPassword(principal, password)).first;
+    }
+
+    private Pair<AuthResults, LdapContext> createInitialContex(final Hashtable<String, Object> env) throws
+            FreeIPAException {
         AuthResults authResult = AuthResults.AUTH_SUCCESS;
         InitialLdapContext context = null;
         try {
-            context = new InitialLdapContext(createEnvironment(), null);
+            context = new InitialLdapContext(env, null);
 
             if (freeIPAConfiguration.
                     isRespectResourcePasswordPolicyChangeAfterReset()) {
@@ -89,7 +96,23 @@ public class FreeIPAConnection extends LdapConnection {
         if (!authResult.equals(AuthResults.AUTH_SUCCESS)) {
 
         }
-        return context;
+        return new Pair<AuthResults, LdapContext>(authResult, context);
+    }
+
+    private Hashtable<String, Object> authenticateWithUsernameAndPassword(
+            final String principal, final GuardedString password) {
+        final Hashtable<String, Object> ldapEnvironment = createEnvironment();
+        ldapEnvironment.put(Context.SECURITY_PRINCIPAL, principal);
+        ldapEnvironment.put(Context.SECURITY_CREDENTIALS, ConnectorUtils.getPlainPassword(password));
+        return ldapEnvironment;
+    }
+
+    private Hashtable<String, Object> authenticateWithConfiguration() {
+        final Hashtable<String, Object> ldapEnvironment = createEnvironment();
+        ldapEnvironment.put(Context.SECURITY_PRINCIPAL, freeIPAConfiguration.getPrincipal());
+        ldapEnvironment.put(Context.SECURITY_CREDENTIALS, ConnectorUtils.getPlainPassword(freeIPAConfiguration.
+                getCredentials()));
+        return ldapEnvironment;
     }
 
     private Hashtable<String, Object> createEnvironment() {
@@ -98,9 +121,6 @@ public class FreeIPAConnection extends LdapConnection {
         ldapEnvironment.put(Context.PROVIDER_URL, getLdapUrls());
         ldapEnvironment.put(Context.REFERRAL, "follow");
         ldapEnvironment.put(Context.SECURITY_AUTHENTICATION, "simple");
-        ldapEnvironment.put(Context.SECURITY_PRINCIPAL, freeIPAConfiguration.getPrincipal());
-        ldapEnvironment.put(Context.SECURITY_CREDENTIALS, ConnectorUtils.getPlainPassword(freeIPAConfiguration.
-                getCredentials()));
         if (freeIPAConfiguration.isSsl()) {
             ldapEnvironment.put(Context.SECURITY_PROTOCOL, "ssl");
             if (freeIPAConfiguration.isTrustAllCerts()) {

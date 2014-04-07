@@ -22,11 +22,20 @@
  */
 package org.connid.bundles.freeipa.operations;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.exceptions.FreeIPAException;
+import org.connid.bundles.freeipa.util.AuthResults;
+import org.connid.bundles.ldap.search.LdapSearches;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.exceptions.ConnectorSecurityException;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -43,6 +52,8 @@ public class FreeIPAAuthenticate {
 
     private final OperationOptions options;
 
+    private final FreeIPAConfiguration freeIPAConfiguration;
+
     private final FreeIPAConnection freeIPAConnection;
 
     public FreeIPAAuthenticate(final ObjectClass objectClass,
@@ -54,6 +65,7 @@ public class FreeIPAAuthenticate {
         this.username = username;
         this.password = password;
         this.options = options;
+        this.freeIPAConfiguration = freeIPAConfiguration;
         freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
@@ -68,6 +80,43 @@ public class FreeIPAAuthenticate {
 
     private Uid doAuthenticate() {
         freeIPAConnection.checkAlive();
-        return null;
+
+        final ConnectorObject authnObject = getObjectToAuthenticate();
+
+        AuthResults authResults;
+
+        if (authnObject != null) {
+            final String entryDN = authnObject.getName().getNameValue();
+            try {
+                authResults = freeIPAConnection.login(entryDN, password);
+            } catch (final FreeIPAException e) {
+                throw e;
+            }
+
+        }
+
+        return authnObject.getUid();
+    }
+
+    private ConnectorObject getObjectToAuthenticate() {
+        final String uidAttribute = freeIPAConfiguration.getUidAttribute();
+        Map<String, ConnectorObject> entryDN2Object = new HashMap<String, ConnectorObject>();
+
+        for (String baseContext : freeIPAConfiguration.getBaseContexts()) {
+            final Attribute attr = AttributeBuilder.build(uidAttribute, username);
+
+            for (ConnectorObject object : LdapSearches.findObjects(freeIPAConnection, objectClass, baseContext, attr,
+                    "entryDN")) {
+                String entryDN = object.getAttributeByName("entryDN").getValue().get(0).toString();
+                entryDN2Object.put(entryDN, object);
+            }
+
+            // If we found more than one authentication candidates, no need to continue
+            if (entryDN2Object.size() > 1) {
+                throw new ConnectorSecurityException(freeIPAConnection.format("moreThanOneEntryMatched", null, username));
+            }
+        }
+
+        return !entryDN2Object.isEmpty() ? entryDN2Object.values().iterator().next() : null;
     }
 }

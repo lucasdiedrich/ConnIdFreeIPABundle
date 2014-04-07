@@ -24,6 +24,9 @@ package org.connid.bundles.freeipa.it;
 
 import org.connid.bundles.freeipa.FreeIPAConnector;
 import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import org.connid.bundles.freeipa.exceptions.FreeIPAException;
+import org.connid.bundles.freeipa.util.AuthResults;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -39,6 +42,27 @@ public class FreeIPACheckAliveTest {
     @Test
     public void freeIPACheckAliveTest() {
         freeIPAConnector.checkAlive();
+    }
+    
+    @Test
+    public void freeIPAAuthenticateWithWrongUsernameTest() {
+        freeIPAConnector.init(ConnectorObjectFactory.configurationWithWrongUsername());
+        try {
+            freeIPAConnector.checkAlive();
+        } catch (FreeIPAException e) {
+            Assert.assertEquals(AuthResults.AUTH_NO_SUCH_OBJECT, e.getExceptionCause());
+        }
+
+    }
+
+    @Test
+    public void freeIPAAuthenticateWithWrongPasswordTest() {
+        freeIPAConnector.init(ConnectorObjectFactory.configurationWithWrongPassword());
+        try {
+            freeIPAConnector.checkAlive();
+        } catch (FreeIPAException e) {
+            Assert.assertEquals(AuthResults.AUTH_INVALID_CREDENTIALS, e.getExceptionCause());
+        }
     }
     
 }
