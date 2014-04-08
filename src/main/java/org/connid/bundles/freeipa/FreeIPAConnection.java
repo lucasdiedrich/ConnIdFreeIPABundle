@@ -25,6 +25,11 @@ package org.connid.bundles.freeipa;
 import static org.connid.bundles.ldap.commons.LdapUtil.nullAsEmpty;
 
 import com.sun.jndi.ldap.ctl.PasswordExpiredResponseControl;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.util.ssl.SSLUtil;
+import com.unboundid.util.ssl.TrustAllTrustManager;
+import java.security.GeneralSecurityException;
 import java.util.Hashtable;
 import javax.naming.AuthenticationException;
 import javax.naming.Context;
@@ -34,9 +39,9 @@ import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import org.connid.bundles.freeipa.exceptions.FreeIPAException;
-import org.connid.bundles.freeipa.util.ConnectorUtils;
-import org.connid.bundles.freeipa.util.AuthResults;
-import org.connid.bundles.freeipa.util.TrustAllSocketFactory;
+import org.connid.bundles.freeipa.util.client.ConnectorUtils;
+import org.connid.bundles.freeipa.util.client.AuthResults;
+import org.connid.bundles.freeipa.util.client.TrustAllSocketFactory;
 import org.connid.bundles.ldap.LdapConnection;
 import org.identityconnectors.common.Pair;
 import org.identityconnectors.common.logging.Log;
@@ -52,6 +57,8 @@ public class FreeIPAConnection extends LdapConnection {
     private static final String LDAP_CTX_SOCKET_FACTORY = "java.naming.ldap.factory.socket";
 
     private LdapContext initCtx = null;
+
+    private LDAPConnection lDAPConnection = null;
 
     private final FreeIPAConfiguration freeIPAConfiguration;
 
@@ -167,5 +174,30 @@ public class FreeIPAConnection extends LdapConnection {
         } catch (NamingException e) {
             throw new ConnectorException(e);
         }
+    }
+
+    public LDAPConnection lDAPConnection() throws LDAPException, GeneralSecurityException {
+        if (lDAPConnection == null || !lDAPConnection.isConnected()) {
+            if (freeIPAConfiguration.isSsl()) {
+                final SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+                lDAPConnection = new LDAPConnection(
+                        sslUtil.createSSLSocketFactory(),
+                        freeIPAConfiguration.getHost(),
+                        freeIPAConfiguration.getPort(),
+                        freeIPAConfiguration.getPrincipal(),
+                        ConnectorUtils.getPlainPassword(freeIPAConfiguration.getCredentials()));
+            } else {
+                lDAPConnection = new LDAPConnection(
+                        freeIPAConfiguration.getHost(),
+                        freeIPAConfiguration.getPort(),
+                        freeIPAConfiguration.getPrincipal(),
+                        ConnectorUtils.getPlainPassword(freeIPAConfiguration.getCredentials()));
+            }
+        }
+        return lDAPConnection;
+    }
+
+    public void disconnect() {
+        lDAPConnection.close();
     }
 }

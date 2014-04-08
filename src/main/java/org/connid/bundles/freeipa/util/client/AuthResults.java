@@ -20,23 +20,34 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.util;
+package org.connid.bundles.freeipa.util.client;
 
-import org.identityconnectors.common.security.GuardedString;
+public enum AuthResults {
 
-public class ConnectorUtils {
+    AUTH_SUCCESS("SUCCESS"),
+    AUTH_GENERIC_ERROR("NEVER"),
+    AUTH_PASSWORD_EXPIRED("[LDAP: error code 49 - Invalid Credentials]"),
+    AUTH_NO_SUCH_OBJECT("[LDAP: error code 32 - No Such Object]"),
+    AUTH_INVALID_CREDENTIALS("[LDAP: error code 49 - Invalid Credentials]");
 
-    public static String getPlainPassword(final GuardedString password) {
-        final StringBuilder builder = new StringBuilder();
+    private final String cause;
 
-        password.access(new GuardedString.Accessor() {
-
-            @Override
-            public void access(final char[] clearChars) {
-                builder.append(clearChars);
-            }
-        });
-        return builder.toString();
+    private AuthResults(final String cause) {
+        this.cause = cause;
     }
 
+    @Override
+    public String toString() {
+        return cause;
+    }
+
+    public static AuthResults fromValue(final String cause) {
+        AuthResults ex = AUTH_GENERIC_ERROR;
+        for (final AuthResults exceptionTranslator : values()) {
+            if (cause.equalsIgnoreCase(exceptionTranslator.toString())) {
+                ex = exceptionTranslator;
+            }
+        }
+        return ex;
+    }
 }

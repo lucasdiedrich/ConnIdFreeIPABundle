@@ -26,7 +26,7 @@ import java.util.ResourceBundle;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.identityconnectors.common.security.GuardedString;
 
-public class ConnectorObjectFactory {
+public class SampleConfigurationFactory {
 
     public static ResourceBundle freeipaServerProperties = ResourceBundle.getBundle("freeipaserver");
     
@@ -70,6 +70,8 @@ public class ConnectorObjectFactory {
         freeIPAConfiguration.setBaseContexts(freeipaServerProperties.getString("freeipa.server.tree.basecontext"));
         freeIPAConfiguration.setHost(freeipaServerProperties.getString("freeipa.server.host"));
         freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
+        freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
+        freeIPAConfiguration.setKerberosRealm(freeipaServerProperties.getString("freeipa.server.kerberos.realm"));
         return freeIPAConfiguration;
     }
 }

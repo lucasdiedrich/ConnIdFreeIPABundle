@@ -27,7 +27,6 @@ import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.exceptions.FreeIPAException;
-import org.connid.bundles.freeipa.util.AuthResults;
 import org.connid.bundles.ldap.search.LdapSearches;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -42,7 +41,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 
 public class FreeIPAAuthenticate {
 
-    private static final Log LOG = Log.getLog(FreeIPACheckAlive.class);
+    private static final Log LOG = Log.getLog(FreeIPAAuthenticate.class);
 
     private final ObjectClass objectClass;
 
@@ -79,22 +78,15 @@ public class FreeIPAAuthenticate {
     }
 
     private Uid doAuthenticate() {
-        freeIPAConnection.checkAlive();
-
         final ConnectorObject authnObject = getObjectToAuthenticate();
-
-        AuthResults authResults;
-
         if (authnObject != null) {
             final String entryDN = authnObject.getName().getNameValue();
             try {
-                authResults = freeIPAConnection.login(entryDN, password);
+                freeIPAConnection.login(entryDN, password);
             } catch (final FreeIPAException e) {
                 throw e;
             }
-
         }
-
         return authnObject.getUid();
     }
 

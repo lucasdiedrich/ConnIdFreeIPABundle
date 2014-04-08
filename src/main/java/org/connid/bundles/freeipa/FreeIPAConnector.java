@@ -22,11 +22,15 @@
  */
 package org.connid.bundles.freeipa;
 
+import java.util.Set;
 import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.operations.FreeIPACheckAlive;
+import org.connid.bundles.freeipa.operations.FreeIPADispose;
+import org.connid.bundles.freeipa.operations.crud.FreeIPACreate;
 import org.connid.bundles.ldap.LdapConnector;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -65,5 +69,17 @@ public class FreeIPAConnector extends LdapConnector {
     public Uid authenticate(final ObjectClass objectClass,
             final String username, final GuardedString password, final OperationOptions options) {
         return new FreeIPAAuthenticate(objectClass, username, password, options, freeIPAConfiguration).authenticate();
+    }
+
+    @Override
+    public Uid create(final ObjectClass oclass, final Set<Attribute> attrs, final OperationOptions options) {
+        Uid uid = new FreeIPACreate(oclass, attrs, options, freeIPAConfiguration).create();
+        dispose();
+        return uid;
+    }
+
+    @Override
+    public void dispose() {
+        new FreeIPADispose(freeIPAConfiguration).closeConnection();
     }
 }

@@ -22,7 +22,7 @@
  */
 package org.connid.bundles.freeipa;
 
-import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
@@ -31,7 +31,7 @@ public class FreeIPAConfigurationTests {
 
     @Test
     public void freeIPAConfigurationTest() {
-        final FreeIPAConfiguration freeIPAConfiguration = ConnectorObjectFactory.
+        final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
         assertFalse(freeIPAConfiguration.isSsl());
         assertEquals(389, freeIPAConfiguration.getPort());

@@ -23,7 +23,7 @@
 package org.connid.bundles.freeipa.it;
 
 import org.connid.bundles.freeipa.FreeIPAConnector;
-import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -36,7 +36,7 @@ public class FreeIPAAuthenticateTest {
 
     @Test
     public void freeIPAAuthenticateWithWrongUsernameTest() {
-        freeIPAConnector.init(ConnectorObjectFactory.configurationWithRightUsernameAndPassword());
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
         final Uid uid = freeIPAConnector.authenticate(
                     ObjectClass.ACCOUNT, "syncope", new GuardedString("password".toCharArray()), null);
             Assert.assertEquals("syncope", uid.getUidValue());

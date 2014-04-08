@@ -20,34 +20,26 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.commons;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.identityconnectors.common.security.GuardedString;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
+public class AttributesTestValue {
 
-    private boolean trustAllCerts;
-    
-    private String KerberosRealm;
+    public static final String uid = "utente.test";
 
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
-    }
+    public static final String cn = "Utente Test";
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
-    }
+    public static final GuardedString userPassword = new GuardedString("password".toCharArray());
 
-    @ConfigurationProperty(displayMessageKey = "kerberosrealm.display",
-            helpMessageKey = "kerberosrealm.help", order = 2)
-    public String getKerberosRealm() {
-        return KerberosRealm;
-    }
+    public static final String givenName = "Utente";
 
-    public void setKerberosRealm(final String KerberosRealm) {
-        this.KerberosRealm = KerberosRealm;
-    }
+    public static final String sn = "Test";
+
+    public static final String initials = "UT";
+
+    public static final String krbPasswordExpiration = "20140702153844Z";
+
+    public static final String mail = "utente.test@example.com";
+
 }

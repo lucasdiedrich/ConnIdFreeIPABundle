@@ -23,9 +23,9 @@
 package org.connid.bundles.freeipa.it;
 
 import org.connid.bundles.freeipa.FreeIPAConnector;
-import org.connid.bundles.freeipa.commons.ConnectorObjectFactory;
+import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.connid.bundles.freeipa.exceptions.FreeIPAException;
-import org.connid.bundles.freeipa.util.AuthResults;
+import org.connid.bundles.freeipa.util.client.AuthResults;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class FreeIPACheckAliveTest {
     
     @Before
     public void before() {
-        freeIPAConnector.init(ConnectorObjectFactory.configurationWithRightUsernameAndPassword());
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
     }
     
     @Test
@@ -46,7 +46,7 @@ public class FreeIPACheckAliveTest {
     
     @Test
     public void freeIPAAuthenticateWithWrongUsernameTest() {
-        freeIPAConnector.init(ConnectorObjectFactory.configurationWithWrongUsername());
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithWrongUsername());
         try {
             freeIPAConnector.checkAlive();
         } catch (FreeIPAException e) {
@@ -57,7 +57,7 @@ public class FreeIPACheckAliveTest {
 
     @Test
     public void freeIPAAuthenticateWithWrongPasswordTest() {
-        freeIPAConnector.init(ConnectorObjectFactory.configurationWithWrongPassword());
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithWrongPassword());
         try {
             freeIPAConnector.checkAlive();
         } catch (FreeIPAException e) {

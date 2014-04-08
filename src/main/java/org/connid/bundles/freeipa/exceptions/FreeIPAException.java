@@ -22,7 +22,7 @@
  */
 package org.connid.bundles.freeipa.exceptions;
 
-import org.connid.bundles.freeipa.util.AuthResults;
+import org.connid.bundles.freeipa.util.client.AuthResults;
 
 public class FreeIPAException extends RuntimeException {
 

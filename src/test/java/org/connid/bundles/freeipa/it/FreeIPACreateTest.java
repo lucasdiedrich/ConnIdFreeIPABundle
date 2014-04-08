@@ -20,34 +20,31 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.it;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.commons.AttributesTestValue;
+import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
+import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
+import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.junit.Before;
+import org.junit.Test;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
+public class FreeIPACreateTest {
 
-    private boolean trustAllCerts;
-    
-    private String KerberosRealm;
+    private FreeIPAConnector freeIPAConnector;
 
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+    @Before
+    public void before() {
+        freeIPAConnector = new FreeIPAConnector();
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    @Test
+    public void freeIPACreateTest() {
+        final Name name = new Name(AttributesTestValue.uid + (int) (Math.random() * 100000));
+        freeIPAConnector.create(ObjectClass.ACCOUNT, SampleAttributesFactory.sampleSetAttributes(name), null);
     }
 
-    @ConfigurationProperty(displayMessageKey = "kerberosrealm.display",
-            helpMessageKey = "kerberosrealm.help", order = 2)
-    public String getKerberosRealm() {
-        return KerberosRealm;
-    }
-
-    public void setKerberosRealm(final String KerberosRealm) {
-        this.KerberosRealm = KerberosRealm;
-    }
 }

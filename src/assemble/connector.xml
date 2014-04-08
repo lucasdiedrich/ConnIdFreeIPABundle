@@ -54,7 +54,8 @@
   <dependencySets>
     <dependencySet>
       <includes>
-        <include></include>
+        <include>com.unboundid:unboundid-ldapsdk</include>
+        <include>org.connid.bundles:org.connid.bundles.ldap</include>
       </includes>
       <outputDirectory>lib</outputDirectory>
     </dependencySet>

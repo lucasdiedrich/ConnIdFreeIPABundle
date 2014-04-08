@@ -20,34 +20,29 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa;
+package org.connid.bundles.freeipa.operations;
 
-import org.connid.bundles.ldap.LdapConfiguration;
-import org.identityconnectors.framework.spi.ConfigurationProperty;
+import org.connid.bundles.freeipa.FreeIPAConfiguration;
+import org.connid.bundles.freeipa.FreeIPAConnection;
 
-public class FreeIPAConfiguration extends LdapConfiguration {
+public class FreeIPADispose {
 
-    private boolean trustAllCerts;
-    
-    private String KerberosRealm;
+    private final FreeIPAConnection freeIPAConnection;
 
-    @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
-            helpMessageKey = "trustallcerts.help", order = 1)
-    public boolean isTrustAllCerts() {
-        return trustAllCerts;
+    public FreeIPADispose(final FreeIPAConfiguration freeIPAConfiguration) {
+        freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
-    public void setTrustAllCerts(final boolean trustAllCerts) {
-        this.trustAllCerts = trustAllCerts;
+    public void closeConnection() {
+        try {
+            doCloseConnection();
+        } catch (Exception e) {
+
+        }
     }
 
-    @ConfigurationProperty(displayMessageKey = "kerberosrealm.display",
-            helpMessageKey = "kerberosrealm.help", order = 2)
-    public String getKerberosRealm() {
-        return KerberosRealm;
-    }
-
-    public void setKerberosRealm(final String KerberosRealm) {
-        this.KerberosRealm = KerberosRealm;
+    private void doCloseConnection() {
+        freeIPAConnection.close();
+        freeIPAConnection.disconnect();
     }
 }

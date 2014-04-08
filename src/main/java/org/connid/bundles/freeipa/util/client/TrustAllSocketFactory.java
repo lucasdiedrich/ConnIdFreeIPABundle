@@ -20,7 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.util;
+package org.connid.bundles.freeipa.util.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
