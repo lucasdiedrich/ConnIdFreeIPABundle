@@ -28,8 +28,10 @@ import org.identityconnectors.framework.spi.ConfigurationProperty;
 public class FreeIPAConfiguration extends LdapConfiguration {
 
     private boolean trustAllCerts;
+
+    private String kerberosRealm;
     
-    private String KerberosRealm;
+    private String serverBaseHomeDirectory;
 
     @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
             helpMessageKey = "trustallcerts.help", order = 1)
@@ -44,10 +46,20 @@ public class FreeIPAConfiguration extends LdapConfiguration {
     @ConfigurationProperty(displayMessageKey = "kerberosrealm.display",
             helpMessageKey = "kerberosrealm.help", order = 2)
     public String getKerberosRealm() {
-        return KerberosRealm;
+        return kerberosRealm;
     }
 
     public void setKerberosRealm(final String KerberosRealm) {
-        this.KerberosRealm = KerberosRealm;
+        this.kerberosRealm = KerberosRealm;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 3)
+    public String getServerBaseHomeDirectory() {
+        return serverBaseHomeDirectory;
+    }
+
+    public void setServerBaseHomeDirectory(final String serverBaseHomeDirectory) {
+        this.serverBaseHomeDirectory = serverBaseHomeDirectory;
     }
 }

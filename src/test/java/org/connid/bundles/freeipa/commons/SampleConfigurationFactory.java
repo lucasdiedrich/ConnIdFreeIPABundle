@@ -28,7 +28,7 @@ import org.identityconnectors.common.security.GuardedString;
 
 public class SampleConfigurationFactory {
 
-    public static ResourceBundle freeipaServerProperties = ResourceBundle.getBundle("freeipaserver");
+    public static ResourceBundle freeipaServerProperties = ResourceBundle.getBundle("freeipaservertest");
     
     public static FreeIPAConfiguration configurationWithRightUsernameAndPassword() {
         final FreeIPAConfiguration freeIPAConfiguration = configuration();
@@ -72,6 +72,7 @@ public class SampleConfigurationFactory {
         freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
         freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
         freeIPAConfiguration.setKerberosRealm(freeipaServerProperties.getString("freeipa.server.kerberos.realm"));
+        freeIPAConfiguration.setServerBaseHomeDirectory(freeipaServerProperties.getString("freeipa.server.base.home.directory"));
         return freeIPAConfiguration;
     }
 }

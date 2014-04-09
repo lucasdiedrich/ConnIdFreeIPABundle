@@ -22,8 +22,12 @@
  */
 package org.connid.bundles.freeipa.operations.crud;
 
+import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
@@ -31,13 +35,16 @@ import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.util.client.ConnectorUtils;
 import org.connid.bundles.freeipa.util.server.AccountUser;
 import org.connid.bundles.freeipa.util.server.PosixIDs;
+import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class FreeIPACreate {
@@ -99,20 +106,47 @@ public class FreeIPACreate {
                 LOG.info("Attribute value {0}", attribute.getValue().get(0));
             }
 
-            final AccountUser au = new AccountUser(nameAttr.getNameValue(),
-                    ConnectorUtils.getPlainPassword(AttributeUtil.getPasswordValue(attrs)),
-                    AttributeUtil.find(
-                            AccountUser.DefaultAttributes.GIVEN_NAME.ldapValue(), attrs).getValue().get(0).toString(),
-                    AttributeUtil.find(
-                            AccountUser.DefaultAttributes.SN.ldapValue(), attrs).getValue().get(0).toString(),
-                    posixIDsNumber, null)
-                    .setMail(AttributeUtil.find(
-                                    AccountUser.DefaultAttributes.MAIL.ldapValue(), attrs).getValue().get(0).toString())
-                    .setKrbPrincipalName(nameAttr.getNameValue() + "@" + freeIPAConfiguration.getKerberosRealm());
+            final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
+            String password = "";
+            String givenName = "";
+            String sn = "";
+            for (final Attribute attribute : attrs) {
+                if (AccountUser.DefaultAttributes.GIVEN_NAME.ldapValue().equalsIgnoreCase(attribute.getName())) {
+                    givenName = attribute.getValue().get(0).toString();
+                } else if (AccountUser.DefaultAttributes.SN.ldapValue().equalsIgnoreCase(attribute.getName())) {
+                    sn = attribute.getValue().get(0).toString();
+                } else if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
+                    password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
+                } else if (attribute.is(Name.NAME)) {
+                    //DO NOTHING
+                } else if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
+                    //DO NOTHING
+                } else {
+                    otherAttributes.put(attribute.getName(), attribute.getValue());
+                }
+            }
 
-            LOG.info("AccountUser {0}", au);
+            if (StringUtil.isBlank(sn)
+                    || (StringUtil.isBlank(password))
+                    || (StringUtil.isBlank(givenName))) {
+                throw new IllegalArgumentException("GivenName and SN attributes are required");
+            }
 
-            freeIPAConnection.lDAPConnection().add(au.toAddRequest());
+            final AccountUser baseUserAccount
+                    = new AccountUser(nameAttr.getNameValue(), password, givenName, sn,
+                            posixIDsNumber, null, freeIPAConfiguration);
+
+            LOG.info("Base AccountUser {0}", baseUserAccount);
+
+            final AddRequest addRequest = baseUserAccount.toAddRequest();
+
+            if (!otherAttributes.isEmpty()) {
+                baseUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
+            }
+            
+            LOG.info("Complete AccountUser {0}", baseUserAccount);
+
+            freeIPAConnection.lDAPConnection().add(addRequest);
             posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
         } else {
 

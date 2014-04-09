@@ -27,6 +27,8 @@ import com.unboundid.ldap.sdk.Attribute;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import org.connid.bundles.freeipa.FreeIPAConfiguration;
 
 public class AccountUser {
 
@@ -62,13 +64,11 @@ public class AccountUser {
 
     private final String initials;
 
-    private String mail;
-
-    private String krbPrincipalName;
+    private final String krbPrincipalName;
 
     public AccountUser(final String uid, final String password,
             final String givenName, final String sn, final String posixIDsNumber,
-            final List<String> memberOf) {
+            final List<String> memberOf, final FreeIPAConfiguration freeIPAConfiguration) {
         dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
         displayName = givenName + sn;
         cn = givenName + sn;
@@ -78,7 +78,7 @@ public class AccountUser {
         gecos = givenName + sn;
         gidNumber = posixIDsNumber;
         uidNumber = posixIDsNumber;
-        homeDirectory = "/home/" + uid;
+        homeDirectory = freeIPAConfiguration.getServerBaseHomeDirectory() + "/" + uid;
         this.uid = uid;
         this.givenName = givenName;
         this.sn = sn;
@@ -89,80 +89,7 @@ public class AccountUser {
         if (memberOf != null) {
             this.memberOf.addAll(memberOf);
         }
-    }
-
-    public AccountUser setMail(final String mail) {
-        this.mail = mail;
-        return this;
-    }
-
-    public AccountUser setKrbPrincipalName(final String krbPrincipalName) {
-        this.krbPrincipalName = krbPrincipalName;
-        return this;
-    }
-
-    public String getDn() {
-        return dn;
-    }
-
-    public List<String> getObjectClasses() {
-        return objectClasses;
-    }
-
-    public String getUserPassword() {
-        return userPassword;
-    }
-
-    public String getCn() {
-        return cn;
-    }
-
-    public String getLoginShell() {
-        return loginShell;
-    }
-
-    public String getGecos() {
-        return gecos;
-    }
-
-    public String getGidNumber() {
-        return gidNumber;
-    }
-
-    public String getUidNumber() {
-        return uidNumber;
-    }
-
-    public String getSn() {
-        return sn;
-    }
-
-    public String getHomeDirectory() {
-        return homeDirectory;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public String getMail() {
-        return mail;
-    }
-
-    public String getKrbPrincipalName() {
-        return krbPrincipalName;
-    }
-
-    public String getGivenName() {
-        return givenName;
-    }
-
-    public String getInitials() {
-        return initials;
-    }
-
-    public List<String> getMemberOf() {
-        return memberOf;
+        krbPrincipalName = uid + "@" + freeIPAConfiguration.getKerberosRealm();
     }
 
     private enum DefaultObjectClasses {
@@ -248,7 +175,6 @@ public class AccountUser {
         final Attribute homedirectory = new Attribute(DefaultAttributes.HOME_DIRECTORY.ldapValue(), this.homeDirectory);
         final Attribute memberof = new Attribute(DefaultAttributes.MEMBER_OF.ldapValue(), this.memberOf);
         final Attribute surname = new Attribute(DefaultAttributes.SN.ldapValue(), this.sn);
-        final Attribute email = new Attribute(DefaultAttributes.MAIL.ldapValue(), this.mail);
         final Attribute krbprincipalname = new Attribute(DefaultAttributes.KRB_PRINCIPAL_NAME.ldapValue(),
                 this.krbPrincipalName);
         final Attribute givenname = new Attribute(DefaultAttributes.GIVEN_NAME.ldapValue(), this.givenName);
@@ -268,7 +194,6 @@ public class AccountUser {
         attributes.add(userpassword);
         attributes.add(memberof);
         attributes.add(surname);
-        attributes.add(email);
         attributes.add(krbprincipalname);
         attributes.add(givenname);
         attributes.add(userInitials);
@@ -276,4 +201,17 @@ public class AccountUser {
         return new AddRequest(dn, attributes);
     }
 
+    public void fillOtherAttributesToAddRequest(final Map<String, List<Object>> otherAttributes,
+            final AddRequest addRequest) {
+        Attribute attribute;
+        List<String> stringAttributes;
+        for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
+            stringAttributes = new ArrayList<String>();
+            for (final Object object : attr.getValue()) {
+                stringAttributes.add(object.toString());
+            }
+            attribute = new Attribute(attr.getKey(), stringAttributes);
+            addRequest.addAttribute(attribute);
+        }
+    }
 }
