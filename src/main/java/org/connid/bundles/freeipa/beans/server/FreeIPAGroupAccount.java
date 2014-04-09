@@ -49,13 +49,10 @@ public class FreeIPAGroupAccount {
 
     private final String cn;
 
-    private final String uid;
-
     public FreeIPAGroupAccount(final String uid, final String description,
             final String posixIDsNumber, final FreeIPAConfiguration freeIPAConfiguration) {
         dn = groupDN(uid);
         objectClasses = DefaultObjectClasses.toList();
-        this.uid = uid;
         this.description = description;
         cn = uid;
         gidNumber = posixIDsNumber;
@@ -64,7 +61,6 @@ public class FreeIPAGroupAccount {
     private enum DefaultObjectClasses {
 
         TOP("top"),
-        PERSON("person"),
         GROUP_OF_NAMES("groupofnames"),
         NESTED_GROUP("nestedgroup"),
         IPA_USER_GROUP("ipausergroup"),
@@ -96,7 +92,6 @@ public class FreeIPAGroupAccount {
         OBJECT_CLASS("objectClass"),
         DN("dn"),
         CN("cn"),
-        UID("uid"),
         DESCRIPTION("description"),
         GID_NUMBER("gidNumber");
 
@@ -114,7 +109,6 @@ public class FreeIPAGroupAccount {
     public AddRequest toAddRequest() {
 
         final Attribute oc = new Attribute(DefaultAttributes.OBJECT_CLASS.ldapValue(), objectClasses);
-        final Attribute uID = new Attribute(DefaultAttributes.UID.ldapValue(), this.uid);
         final Attribute commonName = new Attribute(DefaultAttributes.CN.ldapValue(), this.cn);
         final Attribute gidnumber = new Attribute(DefaultAttributes.GID_NUMBER.ldapValue(), this.gidNumber);
         final Attribute groupDescription = new Attribute(DefaultAttributes.DESCRIPTION.ldapValue(), this.description);
@@ -123,7 +117,6 @@ public class FreeIPAGroupAccount {
         final Collection<Attribute> attributes = new ArrayList();
         attributes.add(oc);
         attributes.add(commonName);
-        attributes.add(uID);
         attributes.add(gidnumber);
         attributes.add(groupDescription);
 

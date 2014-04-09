@@ -23,6 +23,7 @@
 package org.connid.bundles.freeipa.commons;
 
 import java.util.Set;
+import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -30,18 +31,26 @@ import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 
 public class SampleAttributesFactory {
-    
-    public static Set<Attribute> sampleSetAttributes(final Name name) {
+
+    public static Set<Attribute> sampleUserSetAttributes(final Name name) {
         final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.MAIL.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.mail)));
+                CollectionUtil.newSet(UserAttributesTestValue.mail)));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.SN.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.sn)));
+                CollectionUtil.newSet(UserAttributesTestValue.sn)));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.GIVEN_NAME.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.givenName)));
+                CollectionUtil.newSet(UserAttributesTestValue.givenName)));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.initials)));
-        attributes.add(AttributeBuilder.buildPassword(AttributesTestValue.userPassword));
+                CollectionUtil.newSet(UserAttributesTestValue.initials)));
+        attributes.add(AttributeBuilder.buildPassword(UserAttributesTestValue.userPassword));
+        attributes.add(name);
+        return attributes;
+    }
+
+    public static Set<Attribute> sampleGroupAttributes(final Name name) {
+        final Set attributes = CollectionUtil.newSet(
+                AttributeBuilder.build(FreeIPAGroupAccount.DefaultAttributes.DESCRIPTION.ldapValue(),
+                        CollectionUtil.newSet(GroupAttributesTestValue.description)));
         attributes.add(name);
         return attributes;
     }

@@ -20,7 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.it;
+package org.connid.bundles.freeipa.it.crud.users;
 
 import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConnector;
@@ -34,7 +34,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FreeIPAUpdateTest {
+public class FreeIPAUserUpdateTest {
 
     private FreeIPAConnector freeIPAConnector;
 

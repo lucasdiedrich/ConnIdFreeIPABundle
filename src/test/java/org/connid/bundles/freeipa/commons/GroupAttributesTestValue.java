@@ -22,20 +22,10 @@
  */
 package org.connid.bundles.freeipa.commons;
 
-import org.identityconnectors.common.security.GuardedString;
+public class GroupAttributesTestValue {
 
-public class AttributesTestValue {
+    public static final String cn = "Test Group";
 
-    public static final String uid = "utente.test";
-
-    public static final GuardedString userPassword = new GuardedString("password".toCharArray());
-
-    public static final String givenName = "Utente";
-
-    public static final String sn = "Test";
-
-    public static final String initials = "UT";
-
-    public static final String mail = "utente.test@example.com";
+    public static final String description = "Gruppo di test";
 
 }

@@ -20,10 +20,10 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.it;
+package org.connid.bundles.freeipa.it.crud.groups;
 
 import org.connid.bundles.freeipa.FreeIPAConnector;
-import org.connid.bundles.freeipa.commons.AttributesTestValue;
+import org.connid.bundles.freeipa.commons.GroupAttributesTestValue;
 import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.identityconnectors.framework.common.objects.Name;
@@ -31,8 +31,8 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FreeIPACreateTest {
-
+public class FreeIPAGroupCreateTest {
+    
     private FreeIPAConnector freeIPAConnector;
 
     @Before
@@ -43,8 +43,8 @@ public class FreeIPACreateTest {
 
     @Test
     public void freeIPACreateTest() {
-        final Name name = new Name(AttributesTestValue.uid + (int) (Math.random() * 100000));
-        freeIPAConnector.create(ObjectClass.ACCOUNT, SampleAttributesFactory.sampleSetAttributes(name), null);
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        freeIPAConnector.create(ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
     }
-
+    
 }

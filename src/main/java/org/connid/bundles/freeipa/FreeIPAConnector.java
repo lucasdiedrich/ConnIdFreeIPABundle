@@ -27,6 +27,8 @@ import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.operations.FreeIPACheckAlive;
 import org.connid.bundles.freeipa.operations.FreeIPADispose;
 import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupCreate;
+import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupDelete;
+import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupUpdate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserCreate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserDelete;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserUpdate;
@@ -79,9 +81,9 @@ public class FreeIPAConnector extends LdapConnector {
     public Uid create(final ObjectClass oclass, final Set<Attribute> attrs, final OperationOptions options) {
         Uid uid;
         if (ObjectClass.ACCOUNT.equals(oclass)) {
-            uid = new FreeIPAUserCreate(oclass, attrs, options, freeIPAConfiguration).createUser();
+            uid = new FreeIPAUserCreate(attrs, options, freeIPAConfiguration).createUser();
         } else if (ObjectClass.GROUP.equals(oclass)) {
-            uid = new FreeIPAGroupCreate(oclass, attrs, options, freeIPAConfiguration).createGroup();
+            uid = new FreeIPAGroupCreate(attrs, options, freeIPAConfiguration).createGroup();
         } else {
             throw new ConnectorException("Object class not valid");
         }
@@ -92,14 +94,27 @@ public class FreeIPAConnector extends LdapConnector {
     @Override
     public Uid update(final ObjectClass oclass, final Uid uid,
             final Set<Attribute> replaceAttributes, final OperationOptions options) {
-        final Uid finalUid = new FreeIPAUserUpdate(oclass, uid, replaceAttributes, options, freeIPAConfiguration).update();
+        Uid finalUid;
+        if (ObjectClass.ACCOUNT.equals(oclass)) {
+            finalUid = new FreeIPAUserUpdate(uid, replaceAttributes, options, freeIPAConfiguration).updateUser();
+        } else if (ObjectClass.GROUP.equals(oclass)) {
+            finalUid = new FreeIPAGroupUpdate(uid, replaceAttributes, options, freeIPAConfiguration).updateGroup();
+        } else {
+            throw new ConnectorException("Object class not valid");
+        }
         dispose();
         return finalUid;
     }
 
     @Override
     public void delete(final ObjectClass oclass, final Uid uid, final OperationOptions options) {
-        new FreeIPAUserDelete(oclass, uid, options, freeIPAConfiguration).delete();
+        if (ObjectClass.ACCOUNT.equals(oclass)) {
+            new FreeIPAUserDelete(uid, options, freeIPAConfiguration).deleteUser();
+        } else if (ObjectClass.GROUP.equals(oclass)) {
+            new FreeIPAGroupDelete(uid, options, freeIPAConfiguration).deleteGroup();
+        } else {
+            throw new ConnectorException("Object class not valid");
+        }
         dispose();
     }
 

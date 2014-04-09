@@ -20,16 +20,21 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.it;
+package org.connid.bundles.freeipa.it.crud.groups;
 
+import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
+import org.identityconnectors.common.CollectionUtil;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FreeIPADeleteTest {
+public class FreeIPAGroupUpdateTest {
 
     private FreeIPAConnector freeIPAConnector;
 
@@ -40,8 +45,15 @@ public class FreeIPADeleteTest {
     }
 
     @Test
-    public void freeIPADeleteTest() {
-        final Uid uid = new Uid("utente.test18657");
-        freeIPAConnector.delete(ObjectClass.ACCOUNT, uid, null);
+    public void freeIPAUpdateTest() {
+        final Uid uid = new Uid("Test Group14801");
+        freeIPAConnector.update(ObjectClass.GROUP, uid, sampleSetAttributes(), null);
+    }
+    
+    public static Set<Attribute> sampleSetAttributes() {
+        final Set attributes = CollectionUtil.newSet(AttributeBuilder.build(
+                FreeIPAGroupAccount.DefaultAttributes.DESCRIPTION.ldapValue(),
+                CollectionUtil.newSet("NUOVA DESCRIZIONE")));
+        return attributes;
     }
 }

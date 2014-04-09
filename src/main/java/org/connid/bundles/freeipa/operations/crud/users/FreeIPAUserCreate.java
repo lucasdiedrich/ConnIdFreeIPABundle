@@ -41,7 +41,6 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -60,8 +59,7 @@ public class FreeIPAUserCreate {
 
     private final PosixIDs posixIDs;
 
-    public FreeIPAUserCreate(final ObjectClass oclass,
-            final Set<Attribute> attrs,
+    public FreeIPAUserCreate(final Set<Attribute> attrs,
             final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
         this.attrs = attrs;

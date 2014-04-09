@@ -20,19 +20,20 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.operations.crud.users;
+package org.connid.bundles.freeipa.operations.crud.groups;
 
+import org.connid.bundles.freeipa.operations.crud.users.*;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
-import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
 
-public class FreeIPAUserDelete {
+public class FreeIPAGroupDelete {
 
     private static final Log LOG = Log.getLog(FreeIPAUserDelete.class);
 
@@ -42,14 +43,14 @@ public class FreeIPAUserDelete {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAUserDelete(final Uid uid, final OperationOptions options,
+    public FreeIPAGroupDelete(final Uid uid, final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
         this.options = options;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
-    public final void deleteUser() {
+    public final void deleteGroup() {
         try {
             doDelete();
         } catch (LDAPException e) {
@@ -71,6 +72,6 @@ public class FreeIPAUserDelete {
         LOG.info("uid found {0}", uid.getUidValue());
 
         LOG.info("Calling server to delete {0}", uid.getUidValue());
-        freeIPAConnection.lDAPConnection().delete(FreeIPAUserAccount.userDN(uid.getUidValue()));
+        freeIPAConnection.lDAPConnection().delete(FreeIPAGroupAccount.groupDN(uid.getUidValue()));
     }
 }

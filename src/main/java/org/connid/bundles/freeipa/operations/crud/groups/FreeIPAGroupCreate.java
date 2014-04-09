@@ -22,7 +22,6 @@
  */
 package org.connid.bundles.freeipa.operations.crud.groups;
 
-import org.connid.bundles.freeipa.operations.crud.users.*;
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
@@ -40,14 +39,13 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class FreeIPAGroupCreate {
 
-    private static final Log LOG = Log.getLog(FreeIPAUserCreate.class);
+    private static final Log LOG = Log.getLog(FreeIPAGroupCreate.class);
 
     private final Set<Attribute> attrs;
 
@@ -59,8 +57,7 @@ public class FreeIPAGroupCreate {
 
     private final PosixIDs posixIDs;
 
-    public FreeIPAGroupCreate(final ObjectClass oclass,
-            final Set<Attribute> attrs,
+    public FreeIPAGroupCreate(final Set<Attribute> attrs,
             final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
         this.attrs = attrs;

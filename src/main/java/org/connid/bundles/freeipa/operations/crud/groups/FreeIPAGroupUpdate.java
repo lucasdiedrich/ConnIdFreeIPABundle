@@ -20,7 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.operations.crud.users;
+package org.connid.bundles.freeipa.operations.crud.groups;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -31,10 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
-import org.connid.bundles.freeipa.util.client.ConnectorUtils;
-import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.identityconnectors.common.logging.Log;
-import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.Name;
@@ -42,9 +40,9 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
-public class FreeIPAUserUpdate {
+public class FreeIPAGroupUpdate {
 
-    private static final Log LOG = Log.getLog(FreeIPAUserUpdate.class);
+    private static final Log LOG = Log.getLog(FreeIPAGroupUpdate.class);
 
     private final Uid uid;
 
@@ -56,7 +54,7 @@ public class FreeIPAUserUpdate {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAUserUpdate(final Uid uid,
+    public FreeIPAGroupUpdate(final Uid uid,
             final Set<Attribute> replaceAttributes, final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
@@ -66,7 +64,7 @@ public class FreeIPAUserUpdate {
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
-    public final Uid updateUser() {
+    public final Uid updateGroup() {
         try {
             return doUpdate();
         } catch (LDAPException e) {
@@ -88,15 +86,11 @@ public class FreeIPAUserUpdate {
         LOG.info("uid found {0}", uid.getUidValue());
 
         final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
-        String password = "";
-        Boolean attrStatus = null;
         for (final Attribute attribute : attrs) {
             if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
-                password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
+                //DO NOTHING
             } else if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
-                if (attribute.getValue() != null && !attribute.getValue().isEmpty()) {
-                    attrStatus = Boolean.parseBoolean(attribute.getValue().get(0).toString());
-                }
+                //DO NOTHING
             } else if (attribute.is(Name.NAME)) {
                 //DO NOTHING
             } else {
@@ -104,8 +98,8 @@ public class FreeIPAUserUpdate {
             }
         }
 
-        final ModifyRequest modifyRequest = FreeIPAUserAccount.createModifyRequest(
-                uid, password, attrStatus, otherAttributes, freeIPAConfiguration);
+        final ModifyRequest modifyRequest = FreeIPAGroupAccount.createModifyRequest(
+                uid, otherAttributes,freeIPAConfiguration);
 
         LOG.info("Calling server to modify {0}", modifyRequest.getDN());
 
