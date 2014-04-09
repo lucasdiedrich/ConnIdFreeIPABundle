@@ -107,6 +107,7 @@ public class FreeIPACreate {
 
             final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
             String password = "";
+            Boolean attrStatus = Boolean.TRUE;
             String givenName = "";
             String sn = "";
             for (final Attribute attribute : attrs) {
@@ -116,9 +117,11 @@ public class FreeIPACreate {
                     sn = attribute.getValue().get(0).toString();
                 } else if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
                     password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
-                } else if (attribute.is(Name.NAME)) {
-                    //DO NOTHING
                 } else if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
+                    if (attribute.getValue() != null && !attribute.getValue().isEmpty()) {
+                        attrStatus = Boolean.parseBoolean(attribute.getValue().get(0).toString());
+                    }
+                } else if (attribute.is(Name.NAME)) {
                     //DO NOTHING
                 } else {
                     otherAttributes.put(attribute.getName(), attribute.getValue());
@@ -132,7 +135,7 @@ public class FreeIPACreate {
             }
 
             final FreeIPAUserAccount baseUserAccount
-                    = new FreeIPAUserAccount(nameAttr.getNameValue(), password, givenName, sn,
+                    = new FreeIPAUserAccount(nameAttr.getNameValue(), password, attrStatus, givenName, sn,
                             posixIDsNumber, null, freeIPAConfiguration);
 
             LOG.info("Base AccountUser {0}", baseUserAccount);
@@ -142,7 +145,7 @@ public class FreeIPACreate {
             if (!otherAttributes.isEmpty()) {
                 baseUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
             }
-            
+
             LOG.info("Complete AccountUser {0}", baseUserAccount);
 
             freeIPAConnection.lDAPConnection().add(addRequest);

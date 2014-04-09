@@ -44,6 +44,8 @@ public class FreeIPAUserAccount {
 
     private final List<String> objectClasses;
 
+    private final Boolean nsaccountlock;
+
     private final String userPassword;
 
     private final String cn;
@@ -74,10 +76,11 @@ public class FreeIPAUserAccount {
 
     private final String krbPrincipalName;
 
-    public FreeIPAUserAccount(final String uid, final String password,
+    public FreeIPAUserAccount(final String uid, final String password, final Boolean enabled,
             final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf, final FreeIPAConfiguration freeIPAConfiguration) {
         dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+        nsaccountlock = !enabled;
         displayName = givenName + sn;
         cn = givenName + sn;
         objectClasses = DefaultObjectClasses.toList();
@@ -139,6 +142,7 @@ public class FreeIPAUserAccount {
 
         OBJECT_CLASS("objectClass"),
         DN("dn"),
+        NS_ACCOUNT_LOCK("nsaccountlock"),
         USER_PASSWORD("userPassword"),
         CN("cn"),
         DISPLAY_NAME("displayName"),
@@ -171,6 +175,8 @@ public class FreeIPAUserAccount {
 
         final Attribute oc = new Attribute(DefaultAttributes.OBJECT_CLASS.ldapValue(), objectClasses);
         final Attribute userpassword = new Attribute(DefaultAttributes.USER_PASSWORD.ldapValue(), this.userPassword);
+        final Attribute nsAccountLock = new Attribute(DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue(),
+                String.valueOf(this.nsaccountlock));
         final Attribute commonName = new Attribute(DefaultAttributes.CN.ldapValue(), this.cn);
         final Attribute displayname = new Attribute(DefaultAttributes.DISPLAY_NAME.ldapValue(), this.displayName);
         final Attribute uID = new Attribute(DefaultAttributes.UID.ldapValue(), this.uid);
@@ -190,6 +196,7 @@ public class FreeIPAUserAccount {
 
         final Collection<Attribute> attributes = new ArrayList();
         attributes.add(oc);
+        attributes.add(nsAccountLock);
         attributes.add(commonName);
         attributes.add(displayname);
         attributes.add(mepmanagedentry);
@@ -223,14 +230,18 @@ public class FreeIPAUserAccount {
         }
     }
 
-    public static ModifyRequest createModifyRequest(final Uid uid, final String password,
+    public static ModifyRequest createModifyRequest(final Uid uid, final String password, final Boolean enabled,
             final Map<String, List<Object>> otherAttributes, final FreeIPAConfiguration freeIPAConfiguration) {
-        LOG.info("Updating user {0} with attributes {1}", uid, otherAttributes);
+        LOG.info("Updating user {0} with status {1} and attributes {2}", uid, enabled, otherAttributes);
         final List<Modification> modifications = new ArrayList<Modification>();
         final String dn = "uid=" + uid.getUidValue() + ",cn=users,cn=accounts,dc=tirasa,dc=net";
         if (StringUtil.isNotBlank(password)) {
             modifications.add(new Modification(
                     ModificationType.REPLACE, DefaultAttributes.USER_PASSWORD.ldapValue(), password));
+        }
+        if (enabled != null) {
+            modifications.add(new Modification(
+                    ModificationType.REPLACE, DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue(), String.valueOf(!enabled)));
         }
         String[] stringAttributes;
         for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {

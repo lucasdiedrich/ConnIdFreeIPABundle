@@ -51,9 +51,9 @@ public class FreeIPAUpdateTest {
     }
     
     public static Set<Attribute> sampleSetAttributes() {
-        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
+        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(false));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
-                CollectionUtil.newSet("MASSI")));
+                CollectionUtil.newSet("ANDREA")));
         return attributes;
     }
 }

@@ -96,12 +96,15 @@ public class FreeIPAUpdate {
 
             final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
             String password = "";
+            Boolean attrStatus = null;
             for (final Attribute attribute : attrs) {
                 if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
                     password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
-                } else if (attribute.is(Name.NAME)) {
-                    //DO NOTHING
                 } else if (attribute.is(OperationalAttributes.ENABLE_NAME)) {
+                    if (attribute.getValue() != null && !attribute.getValue().isEmpty()) {
+                        attrStatus = Boolean.parseBoolean(attribute.getValue().get(0).toString());
+                    }
+                } else if (attribute.is(Name.NAME)) {
                     //DO NOTHING
                 } else {
                     otherAttributes.put(attribute.getName(), attribute.getValue());
@@ -109,7 +112,7 @@ public class FreeIPAUpdate {
             }
 
             final ModifyRequest modifyRequest = FreeIPAUserAccount.createModifyRequest(
-                    uid, password, otherAttributes, freeIPAConfiguration);
+                    uid, password, attrStatus, otherAttributes, freeIPAConfiguration);
             
             LOG.info("Calling server to modify {0}", modifyRequest.getDN());
 
