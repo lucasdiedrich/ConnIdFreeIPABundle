@@ -101,14 +101,14 @@ public class FreeIPACreate {
 
             final AccountUser au = new AccountUser(nameAttr.getNameValue(),
                     ConnectorUtils.getPlainPassword(AttributeUtil.getPasswordValue(attrs)),
-                    AttributeUtil.find("givenName", attrs).getValue().get(0).toString(),
-                    AttributeUtil.find("sn", attrs).getValue().get(0).toString(),
-                    posixIDsNumber, null).setKrbPasswordExpiration(
-                            AttributeUtil.find("krbPasswordExpiration", attrs).getValue().get(0).toString())
-                    .setMail(AttributeUtil.find("mail", attrs).getValue().get(0).toString())
-                    .setKrbPrincipalName(nameAttr.getNameValue()
-                            + "@"
-                            + freeIPAConfiguration.getKerberosRealm());
+                    AttributeUtil.find(
+                            AccountUser.DefaultAttributes.GIVEN_NAME.ldapValue(), attrs).getValue().get(0).toString(),
+                    AttributeUtil.find(
+                            AccountUser.DefaultAttributes.SN.ldapValue(), attrs).getValue().get(0).toString(),
+                    posixIDsNumber, null)
+                    .setMail(AttributeUtil.find(
+                                    AccountUser.DefaultAttributes.MAIL.ldapValue(), attrs).getValue().get(0).toString())
+                    .setKrbPrincipalName(nameAttr.getNameValue() + "@" + freeIPAConfiguration.getKerberosRealm());
 
             LOG.info("AccountUser {0}", au);
 

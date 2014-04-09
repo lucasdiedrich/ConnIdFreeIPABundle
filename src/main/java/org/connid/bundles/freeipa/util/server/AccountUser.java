@@ -66,15 +66,13 @@ public class AccountUser {
 
     private String krbPrincipalName;
 
-    private String krbPasswordExpiration;
-
     public AccountUser(final String uid, final String password,
             final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf) {
         dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
         displayName = givenName + sn;
         cn = givenName + sn;
-        objectClasses = addDefaultObjectClass();
+        objectClasses = DefaultObjectClasses.toList();
         loginShell = "/bin/sh";
         userPassword = password;
         gecos = givenName + sn;
@@ -93,30 +91,8 @@ public class AccountUser {
         }
     }
 
-    private List<String> addDefaultObjectClass() {
-        List<String> defaultObjectClass = new ArrayList<String>();
-        defaultObjectClass.add("top");
-        defaultObjectClass.add("person");
-        defaultObjectClass.add("organizationalperson");
-        defaultObjectClass.add("inetorgperson");
-        defaultObjectClass.add("inetuser");
-        defaultObjectClass.add("posixAccount");
-        defaultObjectClass.add("krbprincipalaux");
-        defaultObjectClass.add("krbticketpolicyaux");
-        defaultObjectClass.add("ipaobject");
-        defaultObjectClass.add("ipasshuser");
-        defaultObjectClass.add("ipaSshGroupOfPubKeys");
-        defaultObjectClass.add("mepOriginEntry");
-        return defaultObjectClass;
-    }
-
     public AccountUser setMail(final String mail) {
         this.mail = mail;
-        return this;
-    }
-
-    public AccountUser setKrbPasswordExpiration(final String krbPasswordExpiration) {
-        this.krbPasswordExpiration = krbPasswordExpiration;
         return this;
     }
 
@@ -189,30 +165,94 @@ public class AccountUser {
         return memberOf;
     }
 
-    public String getKrbPasswordExpiration() {
-        return krbPasswordExpiration;
+    private enum DefaultObjectClasses {
+
+        TOP("top"),
+        PERSON("person"),
+        ORGANIZATIONAL_PERSON("organizationalperson"),
+        INET_ORG_PERSON("inetorgperson"),
+        INET_USER("inetuser"),
+        POSIX_ACCOUNT("posixAccount"),
+        KRB_PRINCIPAL_AUX("krbprincipalaux"),
+        KRB_TICKET_POLICY_AUX("krbticketpolicyaux"),
+        IPAOBJECT("ipaobject"),
+        IPA_SSH_USER("ipasshuser"),
+        IPA_SSH_GROUP_OF_PUB_KEYS("ipaSshGroupOfPubKeys"),
+        MEP_ORIGIN_ENTRY("mepOriginEntry");
+
+        private final String ldapName;
+
+        private DefaultObjectClasses(final String ldapName) {
+            this.ldapName = ldapName;
+        }
+
+        @Override
+        public String toString() {
+            return ldapName;
+        }
+
+        public static List<String> toList() {
+            final List<String> defaultObjectClass = new ArrayList<String>();
+            for (final DefaultObjectClasses objectClass : values()) {
+                defaultObjectClass.add(objectClass.toString());
+            }
+            return defaultObjectClass;
+        }
+    }
+
+    public enum DefaultAttributes {
+
+        OBJECT_CLASS("objectClass"),
+        DN("dn"),
+        USER_PASSWORD("userPassword"),
+        CN("cn"),
+        DISPLAY_NAME("displayName"),
+        UID("uid"),
+        GECOS("gecos"),
+        MEP_MANAGED_ENTRY("mepManagedEntry"),
+        UID_NUMBER("uidNumber"),
+        GID_NUMBER("gidNumber"),
+        LOGIN_SHELL("loginShell"),
+        HOME_DIRECTORY("homeDirectory"),
+        MEMBER_OF("memberOf"),
+        SN("sn"),
+        MAIL("mail"),
+        KRB_PRINCIPAL_NAME("krbPrincipalName"),
+        GIVEN_NAME("givenName"),
+        INITIALS("initials");
+
+        private final String ldapName;
+
+        private DefaultAttributes(final String ldapName) {
+            this.ldapName = ldapName;
+        }
+
+        public String ldapValue() {
+            return ldapName;
+        }
     }
 
     public AddRequest toAddRequest() {
 
-        final Attribute oc = new Attribute("objectClass", objectClasses);
-        final Attribute userpassword = new Attribute("userPassword", this.userPassword);
-        final Attribute commonName = new Attribute("cn", this.cn);
-        final Attribute displayname = new Attribute("displayName", this.displayName);
-        final Attribute uID = new Attribute("uid", this.uid);
-        final Attribute gecOS = new Attribute("gecos", this.gecos);
-        final Attribute mepmanagedentry = new Attribute("mepManagedEntry", this.mepManagedEntry);
-        final Attribute uidnumber = new Attribute("uidNumber", this.uidNumber);
-        final Attribute gidnumber = new Attribute("gidNumber", this.gidNumber);
-        final Attribute loginshell = new Attribute("loginShell", this.loginShell);
-        final Attribute homedirectory = new Attribute("homeDirectory", this.homeDirectory);
-        final Attribute memberof = new Attribute("memberOf", this.memberOf);
-        final Attribute surname = new Attribute("sn", this.sn);
-        final Attribute email = new Attribute("mail", this.mail);
-        final Attribute krbprincipalname = new Attribute("krbPrincipalName", this.krbPrincipalName);
-        final Attribute givenname = new Attribute("givenName", this.givenName);
-        final Attribute userInitials = new Attribute("initials", this.initials);
-        final Attribute krbpasswordExpiration = new Attribute("krbPasswordExpiration", this.krbPasswordExpiration);
+        final Attribute oc = new Attribute(DefaultAttributes.OBJECT_CLASS.ldapValue(), objectClasses);
+        final Attribute userpassword = new Attribute(DefaultAttributes.USER_PASSWORD.ldapValue(), this.userPassword);
+        final Attribute commonName = new Attribute(DefaultAttributes.CN.ldapValue(), this.cn);
+        final Attribute displayname = new Attribute(DefaultAttributes.DISPLAY_NAME.ldapValue(), this.displayName);
+        final Attribute uID = new Attribute(DefaultAttributes.UID.ldapValue(), this.uid);
+        final Attribute gecOS = new Attribute(DefaultAttributes.GECOS.ldapValue(), this.gecos);
+        final Attribute mepmanagedentry = new Attribute(DefaultAttributes.MEP_MANAGED_ENTRY.ldapValue(),
+                this.mepManagedEntry);
+        final Attribute uidnumber = new Attribute(DefaultAttributes.UID_NUMBER.ldapValue(), this.uidNumber);
+        final Attribute gidnumber = new Attribute(DefaultAttributes.GID_NUMBER.ldapValue(), this.gidNumber);
+        final Attribute loginshell = new Attribute(DefaultAttributes.LOGIN_SHELL.ldapValue(), this.loginShell);
+        final Attribute homedirectory = new Attribute(DefaultAttributes.HOME_DIRECTORY.ldapValue(), this.homeDirectory);
+        final Attribute memberof = new Attribute(DefaultAttributes.MEMBER_OF.ldapValue(), this.memberOf);
+        final Attribute surname = new Attribute(DefaultAttributes.SN.ldapValue(), this.sn);
+        final Attribute email = new Attribute(DefaultAttributes.MAIL.ldapValue(), this.mail);
+        final Attribute krbprincipalname = new Attribute(DefaultAttributes.KRB_PRINCIPAL_NAME.ldapValue(),
+                this.krbPrincipalName);
+        final Attribute givenname = new Attribute(DefaultAttributes.GIVEN_NAME.ldapValue(), this.givenName);
+        final Attribute userInitials = new Attribute(DefaultAttributes.INITIALS.ldapValue(), this.initials);
 
         final Collection<Attribute> attributes = new ArrayList();
         attributes.add(oc);
@@ -232,7 +272,6 @@ public class AccountUser {
         attributes.add(krbprincipalname);
         attributes.add(givenname);
         attributes.add(userInitials);
-        attributes.add(krbpasswordExpiration);
 
         return new AddRequest(dn, attributes);
     }

@@ -36,8 +36,6 @@ public class AttributesTestValue {
 
     public static final String initials = "UT";
 
-    public static final String krbPasswordExpiration = "20140702153844Z";
-
     public static final String mail = "utente.test@example.com";
 
 }

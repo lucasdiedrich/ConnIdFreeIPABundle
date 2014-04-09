@@ -23,6 +23,7 @@
 package org.connid.bundles.freeipa.commons;
 
 import java.util.Set;
+import org.connid.bundles.freeipa.util.server.AccountUser;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -32,12 +33,14 @@ public class SampleAttributesFactory {
     
     public static Set<Attribute> sampleSetAttributes(final Name name) {
         final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
-        attributes.add(AttributeBuilder.build("mail", CollectionUtil.newSet(AttributesTestValue.mail)));
-        attributes.add(AttributeBuilder.build("sn", CollectionUtil.newSet(AttributesTestValue.sn)));
-        attributes.add(AttributeBuilder.build("givenName", CollectionUtil.newSet(AttributesTestValue.givenName)));
-        attributes.add(AttributeBuilder.build("krbPasswordExpiration", CollectionUtil.newSet(
-                AttributesTestValue.krbPasswordExpiration)));
-        attributes.add(AttributeBuilder.build("initials", CollectionUtil.newSet(AttributesTestValue.initials)));
+        attributes.add(AttributeBuilder.build(AccountUser.DefaultAttributes.MAIL.ldapValue(),
+                CollectionUtil.newSet(AttributesTestValue.mail)));
+        attributes.add(AttributeBuilder.build(AccountUser.DefaultAttributes.SN.ldapValue(),
+                CollectionUtil.newSet(AttributesTestValue.sn)));
+        attributes.add(AttributeBuilder.build(AccountUser.DefaultAttributes.GIVEN_NAME.ldapValue(),
+                CollectionUtil.newSet(AttributesTestValue.givenName)));
+        attributes.add(AttributeBuilder.build(AccountUser.DefaultAttributes.INITIALS.ldapValue(),
+                CollectionUtil.newSet(AttributesTestValue.initials)));
         attributes.add(AttributeBuilder.buildPassword(AttributesTestValue.userPassword));
         attributes.add(name);
         return attributes;
