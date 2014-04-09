@@ -215,6 +215,10 @@ public class FreeIPAUserAccount {
 
         return new AddRequest(dn, attributes);
     }
+    
+    public static String userDN(final String uid) {
+        return "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+    }
 
     public void fillOtherAttributesToAddRequest(final Map<String, List<Object>> otherAttributes,
             final AddRequest addRequest) {

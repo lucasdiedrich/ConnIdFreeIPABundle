@@ -27,6 +27,7 @@ import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.operations.FreeIPACheckAlive;
 import org.connid.bundles.freeipa.operations.FreeIPADispose;
 import org.connid.bundles.freeipa.operations.crud.FreeIPACreate;
+import org.connid.bundles.freeipa.operations.crud.FreeIPADelete;
 import org.connid.bundles.freeipa.operations.crud.FreeIPAUpdate;
 import org.connid.bundles.ldap.LdapConnector;
 import org.identityconnectors.common.logging.Log;
@@ -85,6 +86,12 @@ public class FreeIPAConnector extends LdapConnector {
         final Uid finalUid = new FreeIPAUpdate(oclass, uid, replaceAttributes, options, freeIPAConfiguration).update();
         dispose();
         return finalUid;
+    }
+
+    @Override
+    public void delete(final ObjectClass oclass, final Uid uid, final OperationOptions options) {
+        new FreeIPADelete(oclass, uid, options, freeIPAConfiguration).delete();
+        dispose();
     }
 
     @Override
