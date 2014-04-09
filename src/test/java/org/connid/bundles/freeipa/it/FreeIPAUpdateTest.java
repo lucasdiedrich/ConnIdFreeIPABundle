@@ -20,30 +20,40 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.commons;
+package org.connid.bundles.freeipa.it;
 
 import java.util.Set;
+import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.connid.bundles.freeipa.util.server.FreeIPAUserAccount;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
-import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
+import org.junit.Before;
+import org.junit.Test;
 
-public class SampleAttributesFactory {
-    
-    public static Set<Attribute> sampleSetAttributes(final Name name) {
-        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
-        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.MAIL.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.mail)));
-        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.SN.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.sn)));
-        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.GIVEN_NAME.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.givenName)));
-        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
-                CollectionUtil.newSet(AttributesTestValue.initials)));
-        attributes.add(AttributeBuilder.buildPassword(AttributesTestValue.userPassword));
-        attributes.add(name);
-        return attributes;
+public class FreeIPAUpdateTest {
+
+    private FreeIPAConnector freeIPAConnector;
+
+    @Before
+    public void before() {
+        freeIPAConnector = new FreeIPAConnector();
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
     }
 
+    @Test
+    public void freeIPAUpdateTest() {
+        final Uid uid = new Uid("utente.test28462");
+        freeIPAConnector.update(ObjectClass.ACCOUNT, uid, sampleSetAttributes(), null);
+    }
+    
+    public static Set<Attribute> sampleSetAttributes() {
+        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
+        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
+                CollectionUtil.newSet("MASSI")));
+        return attributes;
+    }
 }

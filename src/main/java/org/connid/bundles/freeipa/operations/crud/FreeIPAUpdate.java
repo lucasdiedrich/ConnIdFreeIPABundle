@@ -22,8 +22,8 @@
  */
 package org.connid.bundles.freeipa.operations.crud;
 
-import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -33,24 +33,23 @@ import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.util.client.ConnectorUtils;
 import org.connid.bundles.freeipa.util.server.FreeIPAUserAccount;
-import org.connid.bundles.freeipa.util.server.PosixIDs;
-import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
-public class FreeIPACreate {
+public class FreeIPAUpdate {
 
-    private static final Log LOG = Log.getLog(FreeIPACreate.class);
+    private static final Log LOG = Log.getLog(FreeIPAUpdate.class);
 
     private final ObjectClass oclass;
+
+    private final Uid uid;
 
     private final Set<Attribute> attrs;
 
@@ -60,61 +59,45 @@ public class FreeIPACreate {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    private final PosixIDs posixIDs;
-
-    public FreeIPACreate(final ObjectClass oclass,
-            final Set<Attribute> attrs,
-            final OperationOptions options,
+    public FreeIPAUpdate(final ObjectClass oclass, final Uid uid,
+            final Set<Attribute> replaceAttributes, final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
 
         this.oclass = oclass;
-        this.attrs = attrs;
+        this.uid = uid;
+        this.attrs = replaceAttributes;
         this.options = options;
         this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
-        this.posixIDs = new PosixIDs(freeIPAConfiguration);
     }
 
-    public final Uid create() {
+    public final Uid update() {
         try {
-            return doCreate();
+            return doUpdate();
         } catch (LDAPException e) {
-            LOG.error(e, "error during create operation");
+            LOG.error(e, "error during update operation");
             throw new ConnectorException(e);
         } catch (GeneralSecurityException e) {
-            LOG.error(e, "error during create operation");
+            LOG.error(e, "error during update operation");
             throw new ConnectorException(e);
         }
     }
 
-    private Uid doCreate() throws LDAPException, GeneralSecurityException {
-        final Name nameAttr = AttributeUtil.getNameFromAttributes(attrs);
+    private Uid doUpdate() throws LDAPException, GeneralSecurityException {
 
-        if (nameAttr == null) {
-            LOG.error("No Name attribute provided in the attributes");
-            throw new IllegalArgumentException("No Name attribute provided in the attributes");
+        if (uid == null) {
+            LOG.error("No uid attribute provided in the attributes");
+            throw new IllegalArgumentException("No uid attribute provided in the attributes");
         }
 
-        LOG.info("Name found {0}", nameAttr.getNameValue());
+        LOG.info("uid found {0}", uid.getUidValue());
 
         if (ObjectClass.ACCOUNT.equals(oclass)) {
-            final String posixIDsNumber = posixIDs.nextPosixIDs(freeIPAConfiguration);
-            LOG.info("Next posix IDs {0}", posixIDsNumber);
-            for (Attribute attribute : attrs) {
-                LOG.info("Attribute name {0}", attribute.getName());
-                LOG.info("Attribute value {0}", attribute.getValue().get(0));
-            }
 
             final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
             String password = "";
-            String givenName = "";
-            String sn = "";
             for (final Attribute attribute : attrs) {
-                if (FreeIPAUserAccount.DefaultAttributes.GIVEN_NAME.ldapValue().equalsIgnoreCase(attribute.getName())) {
-                    givenName = attribute.getValue().get(0).toString();
-                } else if (FreeIPAUserAccount.DefaultAttributes.SN.ldapValue().equalsIgnoreCase(attribute.getName())) {
-                    sn = attribute.getValue().get(0).toString();
-                } else if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
+                if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
                     password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
                 } else if (attribute.is(Name.NAME)) {
                     //DO NOTHING
@@ -125,31 +108,16 @@ public class FreeIPACreate {
                 }
             }
 
-            if (StringUtil.isBlank(sn)
-                    || (StringUtil.isBlank(password))
-                    || (StringUtil.isBlank(givenName))) {
-                throw new IllegalArgumentException("GivenName and SN attributes are required");
-            }
-
-            final FreeIPAUserAccount baseUserAccount
-                    = new FreeIPAUserAccount(nameAttr.getNameValue(), password, givenName, sn,
-                            posixIDsNumber, null, freeIPAConfiguration);
-
-            LOG.info("Base AccountUser {0}", baseUserAccount);
-
-            final AddRequest addRequest = baseUserAccount.toAddRequest();
-
-            if (!otherAttributes.isEmpty()) {
-                baseUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
-            }
+            final ModifyRequest modifyRequest = FreeIPAUserAccount.createModifyRequest(
+                    uid, password, otherAttributes, freeIPAConfiguration);
             
-            LOG.info("Complete AccountUser {0}", baseUserAccount);
+            LOG.info("Calling server to modify {0}", modifyRequest.getDN());
 
-            freeIPAConnection.lDAPConnection().add(addRequest);
-            posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+            freeIPAConnection.lDAPConnection().modify(modifyRequest);
+
         } else {
 
         }
-        return new Uid(nameAttr.getNameValue());
+        return uid;
     }
 }

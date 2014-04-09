@@ -24,13 +24,21 @@ package org.connid.bundles.freeipa.util.server;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
+import org.identityconnectors.common.StringUtil;
+import org.identityconnectors.common.logging.Log;
+import org.identityconnectors.framework.common.objects.Uid;
 
-public class AccountUser {
+public class FreeIPAUserAccount {
+
+    private static final Log LOG = Log.getLog(FreeIPAUserAccount.class);
 
     private final String dn;
 
@@ -66,7 +74,7 @@ public class AccountUser {
 
     private final String krbPrincipalName;
 
-    public AccountUser(final String uid, final String password,
+    public FreeIPAUserAccount(final String uid, final String password,
             final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf, final FreeIPAConfiguration freeIPAConfiguration) {
         dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
@@ -213,5 +221,26 @@ public class AccountUser {
             attribute = new Attribute(attr.getKey(), stringAttributes);
             addRequest.addAttribute(attribute);
         }
+    }
+
+    public static ModifyRequest createModifyRequest(final Uid uid, final String password,
+            final Map<String, List<Object>> otherAttributes, final FreeIPAConfiguration freeIPAConfiguration) {
+        LOG.info("Updating user {0} with attributes {1}", uid, otherAttributes);
+        final List<Modification> modifications = new ArrayList<Modification>();
+        final String dn = "uid=" + uid.getUidValue() + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+        if (StringUtil.isNotBlank(password)) {
+            modifications.add(new Modification(
+                    ModificationType.REPLACE, DefaultAttributes.USER_PASSWORD.ldapValue(), password));
+        }
+        String[] stringAttributes;
+        for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
+            stringAttributes = new String[attr.getValue().size()];
+            for (int i = 0; i < attr.getValue().size(); i++) {
+                stringAttributes[i] = attr.getValue().get(i).toString();
+            }
+            LOG.info("Creating new modification for {0} with value {1}", attr.getKey(), stringAttributes);
+            modifications.add(new Modification(ModificationType.REPLACE, attr.getKey(), stringAttributes));
+        }
+        return new ModifyRequest(dn, modifications);
     }
 }
