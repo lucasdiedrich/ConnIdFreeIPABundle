@@ -99,22 +99,18 @@ public class FreeIPACreate {
                 LOG.info("Attribute value {0}", attribute.getValue().get(0));
             }
 
-            AccountUser au = new AccountUser(nameAttr.getNameValue(),
+            final AccountUser au = new AccountUser(nameAttr.getNameValue(),
                     ConnectorUtils.getPlainPassword(AttributeUtil.getPasswordValue(attrs)),
-                    AttributeUtil.find("cn", attrs).getValue().get(0).toString(),
-                    posixIDsNumber, null);
-
-            LOG.info("AccountUser {0}", au);
-
-            au.setGivenName(AttributeUtil.find("givenName", attrs).getValue().get(0).toString())
-                    .setInitials(AttributeUtil.find("initials", attrs).getValue().get(0).toString())
-                    .setKrbPasswordExpiration(
+                    AttributeUtil.find("givenName", attrs).getValue().get(0).toString(),
+                    AttributeUtil.find("sn", attrs).getValue().get(0).toString(),
+                    posixIDsNumber, null).setKrbPasswordExpiration(
                             AttributeUtil.find("krbPasswordExpiration", attrs).getValue().get(0).toString())
                     .setMail(AttributeUtil.find("mail", attrs).getValue().get(0).toString())
-                    .setSn(AttributeUtil.find("sn", attrs).getValue().get(0).toString())
                     .setKrbPrincipalName(nameAttr.getNameValue()
-                                    + "@"
-                                    + freeIPAConfiguration.getKerberosRealm());
+                            + "@"
+                            + freeIPAConfiguration.getKerberosRealm());
+
+            LOG.info("AccountUser {0}", au);
 
             freeIPAConnection.lDAPConnection().add(au.toAddRequest());
             posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);

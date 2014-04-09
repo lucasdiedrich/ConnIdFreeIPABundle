@@ -33,7 +33,6 @@ public class SampleAttributesFactory {
     public static Set<Attribute> sampleSetAttributes(final Name name) {
         final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
         attributes.add(AttributeBuilder.build("mail", CollectionUtil.newSet(AttributesTestValue.mail)));
-        attributes.add(AttributeBuilder.build("cn", CollectionUtil.newSet(AttributesTestValue.cn)));
         attributes.add(AttributeBuilder.build("sn", CollectionUtil.newSet(AttributesTestValue.sn)));
         attributes.add(AttributeBuilder.build("givenName", CollectionUtil.newSet(AttributesTestValue.givenName)));
         attributes.add(AttributeBuilder.build("krbPasswordExpiration", CollectionUtil.newSet(

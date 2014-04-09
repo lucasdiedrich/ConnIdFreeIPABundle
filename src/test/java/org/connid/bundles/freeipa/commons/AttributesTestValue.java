@@ -28,8 +28,6 @@ public class AttributesTestValue {
 
     public static final String uid = "utente.test";
 
-    public static final String cn = "Utente Test";
-
     public static final GuardedString userPassword = new GuardedString("password".toCharArray());
 
     public static final String givenName = "Utente";

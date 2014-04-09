@@ -38,6 +38,8 @@ public class AccountUser {
 
     private final String cn;
 
+    private final String displayName;
+
     private final String loginShell;
 
     private final String gecos;
@@ -52,79 +54,64 @@ public class AccountUser {
 
     private final List<String> memberOf;
 
-    private String sn;
+    private final String sn;
+
+    private final String mepManagedEntry;
+
+    private final String givenName;
+
+    private final String initials;
 
     private String mail;
 
     private String krbPrincipalName;
 
-    private String givenName;
-
-    private String initials;
-
     private String krbPasswordExpiration;
 
-    public AccountUser(final String uid, final String password, final String cn, final String posixIDsNumber,
+    public AccountUser(final String uid, final String password,
+            final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf) {
         dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
-        objectClasses = new ArrayList<String>();
-        objectClasses.add("top");
-        objectClasses.add("person");
-        objectClasses.add("organizationalperson");
-        objectClasses.add("inetorgperson");
-        objectClasses.add("inetuser");
-
-        objectClasses.add("posixAccount");
-        objectClasses.add("krbprincipalaux");
-        objectClasses.add("krbticketpolicyaux");
-        objectClasses.add("ipaobject");
-        objectClasses.add("ipasshuser");
-        objectClasses.add("ipaSshGroupOfPubKeys");
-        objectClasses.add("mepOriginEntry");
-
+        displayName = givenName + sn;
+        cn = givenName + sn;
+        objectClasses = addDefaultObjectClass();
+        loginShell = "/bin/sh";
         userPassword = password;
-        this.cn = cn;
-        gecos = cn;
+        gecos = givenName + sn;
         gidNumber = posixIDsNumber;
         uidNumber = posixIDsNumber;
-        this.uid = uid;
         homeDirectory = "/home/" + uid;
-        loginShell = "/bin/sh";
-
+        this.uid = uid;
+        this.givenName = givenName;
+        this.sn = sn;
+        initials = givenName.substring(0, 1) + sn.substring(0, 1);
+        mepManagedEntry = "cn=" + uid + ",cn=groups,cn=accounts,dc=tirasa,dc=net";
         this.memberOf = new ArrayList<String>();
-        this.memberOf.add("cn=admins,cn=groups,cn=accounts,dc=tirasa,dc=net");
-        this.memberOf.add("cn=replication administrators,cn=privileges,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add(" cn=add replication agreements,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=modify replication agreements,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=remove replication agreements,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=modify dna range,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=host enrollment,cn=privileges,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=manage host keytab,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=enroll a host,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=add krbprincipalname to a host,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=unlock user accounts,cn=permissions,cn=pbac,dc=tirasa,dc=net");
-        this.memberOf.add("cn=manage service keytab,cn=permissions,cn=pbac,dc=tirasa,dc=net");
         this.memberOf.add("cn=ipausers,cn=groups,cn=accounts,dc=tirasa,dc=net");
-        this.memberOf.add("cn=" + uid + ",cn=groups,cn=accounts,dc=tirasa,dc=net");
+        if (memberOf != null) {
+            this.memberOf.addAll(memberOf);
+        }
+    }
+
+    private List<String> addDefaultObjectClass() {
+        List<String> defaultObjectClass = new ArrayList<String>();
+        defaultObjectClass.add("top");
+        defaultObjectClass.add("person");
+        defaultObjectClass.add("organizationalperson");
+        defaultObjectClass.add("inetorgperson");
+        defaultObjectClass.add("inetuser");
+        defaultObjectClass.add("posixAccount");
+        defaultObjectClass.add("krbprincipalaux");
+        defaultObjectClass.add("krbticketpolicyaux");
+        defaultObjectClass.add("ipaobject");
+        defaultObjectClass.add("ipasshuser");
+        defaultObjectClass.add("ipaSshGroupOfPubKeys");
+        defaultObjectClass.add("mepOriginEntry");
+        return defaultObjectClass;
     }
 
     public AccountUser setMail(final String mail) {
         this.mail = mail;
-        return this;
-    }
-
-    public AccountUser setSn(final String sn) {
-        this.sn = sn;
-        return this;
-    }
-
-    public AccountUser setGivenName(final String givenName) {
-        this.givenName = givenName;
-        return this;
-    }
-
-    public AccountUser setInitials(final String initials) {
-        this.initials = initials;
         return this;
     }
 
@@ -211,8 +198,10 @@ public class AccountUser {
         final Attribute oc = new Attribute("objectClass", objectClasses);
         final Attribute userpassword = new Attribute("userPassword", this.userPassword);
         final Attribute commonName = new Attribute("cn", this.cn);
+        final Attribute displayname = new Attribute("displayName", this.displayName);
         final Attribute uID = new Attribute("uid", this.uid);
         final Attribute gecOS = new Attribute("gecos", this.gecos);
+        final Attribute mepmanagedentry = new Attribute("mepManagedEntry", this.mepManagedEntry);
         final Attribute uidnumber = new Attribute("uidNumber", this.uidNumber);
         final Attribute gidnumber = new Attribute("gidNumber", this.gidNumber);
         final Attribute loginshell = new Attribute("loginShell", this.loginShell);
@@ -228,6 +217,8 @@ public class AccountUser {
         final Collection<Attribute> attributes = new ArrayList();
         attributes.add(oc);
         attributes.add(commonName);
+        attributes.add(displayname);
+        attributes.add(mepmanagedentry);
         attributes.add(uID);
         attributes.add(gecOS);
         attributes.add(uidnumber);
