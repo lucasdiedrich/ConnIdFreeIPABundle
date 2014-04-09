@@ -20,7 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.operations.crud;
+package org.connid.bundles.freeipa.operations.crud.users;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.ModifyRequest;
@@ -32,7 +32,7 @@ import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.util.client.ConnectorUtils;
-import org.connid.bundles.freeipa.util.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -43,9 +43,9 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
-public class FreeIPAUpdate {
+public class FreeIPAUserUpdate {
 
-    private static final Log LOG = Log.getLog(FreeIPAUpdate.class);
+    private static final Log LOG = Log.getLog(FreeIPAUserUpdate.class);
 
     private final ObjectClass oclass;
 
@@ -59,7 +59,7 @@ public class FreeIPAUpdate {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAUpdate(final ObjectClass oclass, final Uid uid,
+    public FreeIPAUserUpdate(final ObjectClass oclass, final Uid uid,
             final Set<Attribute> replaceAttributes, final OperationOptions options,
             final FreeIPAConfiguration freeIPAConfiguration) {
 

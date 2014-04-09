@@ -20,7 +20,7 @@
  * "Portions Copyrighted [year] [name of copyright owner]"
  * ====================
  */
-package org.connid.bundles.freeipa.util.server;
+package org.connid.bundles.freeipa.beans.server;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
@@ -79,7 +79,7 @@ public class FreeIPAUserAccount {
     public FreeIPAUserAccount(final String uid, final String password, final Boolean enabled,
             final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf, final FreeIPAConfiguration freeIPAConfiguration) {
-        dn = "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+        dn = userDN(uid);
         nsaccountlock = !enabled;
         displayName = givenName + sn;
         cn = givenName + sn;
@@ -238,7 +238,7 @@ public class FreeIPAUserAccount {
             final Map<String, List<Object>> otherAttributes, final FreeIPAConfiguration freeIPAConfiguration) {
         LOG.info("Updating user {0} with status {1} and attributes {2}", uid, enabled, otherAttributes);
         final List<Modification> modifications = new ArrayList<Modification>();
-        final String dn = "uid=" + uid.getUidValue() + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+        final String dn = userDN(uid.getUidValue());
         if (StringUtil.isNotBlank(password)) {
             modifications.add(new Modification(
                     ModificationType.REPLACE, DefaultAttributes.USER_PASSWORD.ldapValue(), password));

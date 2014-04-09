@@ -26,7 +26,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
-import org.connid.bundles.freeipa.util.server.PosixIDs;
+import org.connid.bundles.freeipa.beans.server.PosixIDs;
 import org.junit.Assert;
 import org.junit.Test;
 

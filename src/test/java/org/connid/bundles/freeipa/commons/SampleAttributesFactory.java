@@ -23,7 +23,7 @@
 package org.connid.bundles.freeipa.commons;
 
 import java.util.Set;
-import org.connid.bundles.freeipa.util.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;

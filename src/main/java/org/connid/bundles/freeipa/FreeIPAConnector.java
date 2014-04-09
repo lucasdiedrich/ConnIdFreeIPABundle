@@ -26,12 +26,14 @@ import java.util.Set;
 import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.operations.FreeIPACheckAlive;
 import org.connid.bundles.freeipa.operations.FreeIPADispose;
-import org.connid.bundles.freeipa.operations.crud.FreeIPACreate;
-import org.connid.bundles.freeipa.operations.crud.FreeIPADelete;
-import org.connid.bundles.freeipa.operations.crud.FreeIPAUpdate;
+import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupCreate;
+import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserCreate;
+import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserDelete;
+import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserUpdate;
 import org.connid.bundles.ldap.LdapConnector;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -75,7 +77,14 @@ public class FreeIPAConnector extends LdapConnector {
 
     @Override
     public Uid create(final ObjectClass oclass, final Set<Attribute> attrs, final OperationOptions options) {
-        final Uid uid = new FreeIPACreate(oclass, attrs, options, freeIPAConfiguration).create();
+        Uid uid;
+        if (ObjectClass.ACCOUNT.equals(oclass)) {
+            uid = new FreeIPAUserCreate(oclass, attrs, options, freeIPAConfiguration).createUser();
+        } else if (ObjectClass.GROUP.equals(oclass)) {
+            uid = new FreeIPAGroupCreate(oclass, attrs, options, freeIPAConfiguration).createGroup();
+        } else {
+            throw new ConnectorException("Object class not valid");
+        }
         dispose();
         return uid;
     }
@@ -83,14 +92,14 @@ public class FreeIPAConnector extends LdapConnector {
     @Override
     public Uid update(final ObjectClass oclass, final Uid uid,
             final Set<Attribute> replaceAttributes, final OperationOptions options) {
-        final Uid finalUid = new FreeIPAUpdate(oclass, uid, replaceAttributes, options, freeIPAConfiguration).update();
+        final Uid finalUid = new FreeIPAUserUpdate(oclass, uid, replaceAttributes, options, freeIPAConfiguration).update();
         dispose();
         return finalUid;
     }
 
     @Override
     public void delete(final ObjectClass oclass, final Uid uid, final OperationOptions options) {
-        new FreeIPADelete(oclass, uid, options, freeIPAConfiguration).delete();
+        new FreeIPAUserDelete(oclass, uid, options, freeIPAConfiguration).delete();
         dispose();
     }
 
