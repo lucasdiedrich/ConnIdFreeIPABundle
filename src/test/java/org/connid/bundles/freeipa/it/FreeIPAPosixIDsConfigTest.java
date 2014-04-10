@@ -25,18 +25,19 @@ package org.connid.bundles.freeipa.it;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
+import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
-import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
+import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDsConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FreeIPAPosixIDsTest {
+public class FreeIPAPosixIDsConfigTest {
 
     @Test
-    public void PosixIDsTest() throws GeneralSecurityException, LDAPException {
+    public void posixIDsTest() throws GeneralSecurityException, LDAPException {
         final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
-        final FreeIPAPosixIDs posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
-        Assert.assertNotNull(posixIDs.nextPosixIDs(freeIPAConfiguration));
+        final FreeIPAPosixIDsConfig posixIDs = new FreeIPAPosixIDsConfig(new FreeIPAConnection(freeIPAConfiguration));
+        Assert.assertNotNull(posixIDs.nextPosixIDs());
     }
 }

@@ -36,7 +36,7 @@ import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
-import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
+import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDsConfig;
 import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
@@ -57,13 +57,13 @@ public class FreeIPAGroupCreate {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    private final FreeIPAPosixIDs posixIDs;
+    private final FreeIPAPosixIDsConfig posixIDs;
 
     public FreeIPAGroupCreate(final Set<Attribute> attrs, final FreeIPAConfiguration freeIPAConfiguration) {
         this.attrs = attrs;
         this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
-        this.posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
+        this.posixIDs = new FreeIPAPosixIDsConfig(freeIPAConnection);
     }
 
     public final Uid createGroup() {
@@ -87,7 +87,7 @@ public class FreeIPAGroupCreate {
         }
 
         LOG.info("Name found {0}", nameAttr.getNameValue());
-        final String posixIDsNumber = posixIDs.nextPosixIDs(freeIPAConfiguration);
+        final String posixIDsNumber = posixIDs.nextPosixIDs();
         LOG.info("Next posix IDs {0}", posixIDsNumber);
 
         final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
@@ -131,7 +131,7 @@ public class FreeIPAGroupCreate {
         } catch (final LDAPSearchException e) {
             if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
                 freeIPAConnection.lDAPConnection().add(addRequest);
-                posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+                posixIDs.updatePosixIDs(posixIDsNumber);
             }
 
         }

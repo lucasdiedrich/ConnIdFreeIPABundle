@@ -30,6 +30,7 @@ import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.beans.server.FreeIPAIpaUsersGroup;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.logging.Log;
@@ -75,6 +76,7 @@ public class FreeIPAUserDelete {
             final SearchResult sr = freeIPAConnection.lDAPConnection().search(userDn,
                     SearchScope.BASE, "uid=*", LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
+                new FreeIPAIpaUsersGroup(freeIPAConnection).removeMember(userDn);
                 freeIPAConnection.lDAPConnection().delete(userDn);
             }
         } catch (final LDAPSearchException e) {

@@ -27,41 +27,38 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
-import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
-import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
-import org.connid.bundles.freeipa.util.client.LDAPConstants;
+import org.identityconnectors.common.logging.Log;
 
-public class FreeIPAPosixIDs {
+public class FreeIPAIpaUsersGroup {
+    
+    private static final Log LOG = Log.getLog(FreeIPAGroupAccount.class);
+    
+    private static final String IPA_USERS_GROUP_DN = "cn=ipausers,cn=groups,cn=accounts,dc=tirasa,dc=net";
 
-    private static final String POSIXIDS_DN
-            = "cn=Posix IDs,cn=Distributed Numeric Assignment Plugin,cn=plugins,cn=config";
-
-    private static final String DNA_ATTRIBUTE = "dnaNextValue";
+    private static final String MEMBER_ATTRIBUTE = "member";
 
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAPosixIDs(final FreeIPAConfiguration freeIPAConfiguration) {
-        freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
+    public FreeIPAIpaUsersGroup(final FreeIPAConnection freeIPAConnection) {
+        this.freeIPAConnection = freeIPAConnection;
     }
-
-    public String nextPosixIDs(
-            final FreeIPAConfiguration freeIPAConfiguration) throws GeneralSecurityException, LDAPException {
-
+    
+    public void addMember(final String newMemberDn) throws LDAPException, GeneralSecurityException {
+        LOG.info("Adding member {0} to ipausers group", newMemberDn);
         final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
-        final String nextPosixIDs = lDAPConnection.search(POSIXIDS_DN, SearchScope.BASE,
-                LDAPConstants.OBJECT_CLASS_STAR, DNA_ATTRIBUTE).getSearchEntry(POSIXIDS_DN).getAttributeValue(
-                        DNA_ATTRIBUTE);
-        lDAPConnection.close();
-        return nextPosixIDs;
-    }
-
-    public void updatePosixIDs(final String posixIDs, final FreeIPAConfiguration freeIPAConfiguration)
-            throws LDAPException, GeneralSecurityException {
-        final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
-        lDAPConnection.modify(new ModifyRequest(POSIXIDS_DN, new Modification(
-                ModificationType.REPLACE, DNA_ATTRIBUTE, String.valueOf(Integer.valueOf(posixIDs).intValue() + 1))));
+        lDAPConnection.modify(new ModifyRequest(IPA_USERS_GROUP_DN, new Modification(
+                ModificationType.ADD, MEMBER_ATTRIBUTE, String.valueOf(newMemberDn))));
         lDAPConnection.close();
     }
+    
+    public void removeMember(final String existsMemberDn) throws LDAPException, GeneralSecurityException {
+        LOG.info("Removing member {0} to ipausers group", existsMemberDn);
+        final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
+        lDAPConnection.modify(new ModifyRequest(IPA_USERS_GROUP_DN, new Modification(
+                ModificationType.DELETE, MEMBER_ATTRIBUTE, String.valueOf(existsMemberDn))));
+        lDAPConnection.close();
+    }
+
 }

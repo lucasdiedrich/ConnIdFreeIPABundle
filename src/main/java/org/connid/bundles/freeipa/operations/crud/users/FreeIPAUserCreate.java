@@ -35,9 +35,10 @@ import java.util.Map;
 import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.beans.server.FreeIPAIpaUsersGroup;
 import org.connid.bundles.freeipa.util.client.ConnectorUtils;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
-import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
+import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDsConfig;
 import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
@@ -59,13 +60,13 @@ public class FreeIPAUserCreate {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    private final FreeIPAPosixIDs posixIDs;
+    private final FreeIPAPosixIDsConfig posixIDs;
 
     public FreeIPAUserCreate(final Set<Attribute> attrs, final FreeIPAConfiguration freeIPAConfiguration) {
         this.attrs = attrs;
         this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
-        this.posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
+        this.posixIDs = new FreeIPAPosixIDsConfig(freeIPAConnection);
     }
 
     public final Uid createUser() {
@@ -89,8 +90,6 @@ public class FreeIPAUserCreate {
         }
 
         LOG.info("Name found {0}", nameAttr.getNameValue());
-        final String posixIDsNumber = posixIDs.nextPosixIDs(freeIPAConfiguration);
-        LOG.info("Next posix IDs {0}", posixIDsNumber);
 
         final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
         String password = "";
@@ -121,6 +120,8 @@ public class FreeIPAUserCreate {
             throw new IllegalArgumentException("GivenName and SN attributes are required");
         }
 
+        final String posixIDsNumber = posixIDs.nextPosixIDs();
+        LOG.info("Next posix IDs {0}", posixIDsNumber);
         final FreeIPAUserAccount freeIPAUserAccount
                 = new FreeIPAUserAccount(nameAttr.getNameValue(), password, attrStatus, givenName, sn,
                         posixIDsNumber, null, freeIPAConfiguration);
@@ -142,9 +143,9 @@ public class FreeIPAUserCreate {
         } catch (final LDAPSearchException e) {
             if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
                 freeIPAConnection.lDAPConnection().add(addRequest);
-                posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+                posixIDs.updatePosixIDs(posixIDsNumber);
+                new FreeIPAIpaUsersGroup(freeIPAConnection).addMember(freeIPAUserAccount.getDn());
             }
-
         }
         return new Uid(nameAttr.getNameValue());
     }
