@@ -26,7 +26,7 @@ import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
-import org.connid.bundles.freeipa.beans.server.PosixIDs;
+import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class PosixIDsTest {
     public void PosixIDsTest() throws GeneralSecurityException, LDAPException {
         final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
-        final PosixIDs posixIDs = new PosixIDs(freeIPAConfiguration);
+        final FreeIPAPosixIDs posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
 //        posixIDs.updatePosixIDs(posixIDs.nextPosixIDs(freeIPAConfiguration), freeIPAConfiguration);
         Assert.assertNull(posixIDs.nextPosixIDs(freeIPAConfiguration));
     }

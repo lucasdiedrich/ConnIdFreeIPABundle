@@ -22,21 +22,32 @@
  */
 package org.connid.bundles.freeipa.it.crud.users;
 
+import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConnector;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
+import org.connid.bundles.freeipa.commons.UserAttributesTestValue;
 import org.identityconnectors.common.CollectionUtil;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FreeIPAUserUpdateTest {
 
-    private FreeIPAConnector freeIPAConnector;
+    private static FreeIPAConnector freeIPAConnector;
+
+    private final static List<String> usersCreated = new ArrayList<String>();
 
     @Before
     public void before() {
@@ -45,15 +56,94 @@ public class FreeIPAUserUpdateTest {
     }
 
     @Test
-    public void freeIPAUpdateTest() {
-        final Uid uid = new Uid("utente.test28462");
+    public void sampleUpdateTest() {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        final Uid uid = freeIPAConnector.create(
+                ObjectClass.ACCOUNT, SampleAttributesFactory.sampleUserSetAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
+        usersCreated.add(name.getNameValue());
         freeIPAConnector.update(ObjectClass.ACCOUNT, uid, sampleSetAttributes(), null);
     }
-    
-    public static Set<Attribute> sampleSetAttributes() {
+
+    private Set<Attribute> sampleSetAttributes() {
         final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(false));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
-                CollectionUtil.newSet("ANDREA")));
+                CollectionUtil.newSet("NEW INITIALS")));
         return attributes;
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void updateWithNullUidTest() {
+        freeIPAConnector.update(ObjectClass.ACCOUNT, null, sampleSetAttributes(), null);
+    }
+
+    @Test
+    public void updateWithNullUidCatchTest() {
+        try {
+            freeIPAConnector.update(ObjectClass.ACCOUNT, null, sampleSetAttributes(), null);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("No uid attribute provided in the attributes", e.getMessage());
+        }
+    }
+    
+    @Test
+    public void updateWithNullAttrsTest() {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        freeIPAConnector.update(ObjectClass.ACCOUNT, new Uid(name.getNameValue()), null, null);
+    }
+
+    @Test
+    public void updateWithNullAttrsCatchTest() {
+        try {
+            final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+            freeIPAConnector.update(ObjectClass.ACCOUNT, new Uid(name.getNameValue()), null, null);
+        } catch (final IllegalArgumentException e) {
+            Assert.fail();
+        }
+
+    }
+
+    @Test(expected = ConnectorException.class)
+    public void updateWithNullObjectClassTest() {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        freeIPAConnector.update(null, new Uid(name.getNameValue()), null, null);
+    }
+
+    @Test
+    public void updateWithNullObjectClassCatchTest() {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        try {
+            freeIPAConnector.update(null, new Uid(name.getNameValue()), null, null);
+        } catch (final ConnectorException e) {
+            assertEquals("Object class not valid", e.getMessage());
+        }
+    }
+    
+    @Test(expected = ConnectorException.class)
+    public void updateNotExistsUserTest() {
+        freeIPAConnector.update(
+                ObjectClass.ACCOUNT, new Uid("NOTEXISTS"), 
+                SampleAttributesFactory.sampleUserSetAttributes(new Name("NOTEXISTS")), null);
+    }
+
+    @Test
+    public void updateNotExistsUserCatchTest() {
+        try {
+            freeIPAConnector.update(
+                ObjectClass.ACCOUNT, new Uid("NOTEXISTS"), 
+                SampleAttributesFactory.sampleUserSetAttributes(new Name("NOTEXISTS")), null);
+        } catch (final ConnectorException e) {
+            assertEquals(String.format("User %s already exists", "NOTEXISTS"), e.getMessage());
+        }
+    }
+
+    @AfterClass
+    public static void deleteCreatedUser() {
+        final FreeIPAConnector fipac = new FreeIPAConnector();
+        fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
+        for (final String uid : usersCreated) {
+            fipac.delete(ObjectClass.ACCOUNT, new Uid(uid), null);
+        }
+        freeIPAConnector.dispose();
     }
 }

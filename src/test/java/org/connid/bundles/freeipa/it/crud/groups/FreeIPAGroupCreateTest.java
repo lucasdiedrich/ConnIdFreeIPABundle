@@ -52,10 +52,11 @@ public class FreeIPAGroupCreateTest {
     @Test
     public void freeIPACreateTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
-        freeIPAConnector.create(ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        final Uid uid = freeIPAConnector.create(ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
         groupsCreated.add(name.getNameValue());
     }
-    
+
     @Test(expected = IllegalArgumentException.class)
     public void freeIPACreateWithNullAttrsTest() {
         freeIPAConnector.create(ObjectClass.GROUP, null, null);
@@ -86,7 +87,7 @@ public class FreeIPAGroupCreateTest {
             assertEquals("Object class not valid", e.getMessage());
         }
     }
-    
+
     @Test(expected = ConnectorException.class)
     public void createExistsGroupTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
@@ -99,7 +100,7 @@ public class FreeIPAGroupCreateTest {
     }
 
     @Test
-    public void createExistsUserCatchTest() {
+    public void createExistsGroupCatchTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
         final Uid uid = freeIPAConnector.create(
                 ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
@@ -112,9 +113,9 @@ public class FreeIPAGroupCreateTest {
             assertEquals(String.format("Group %s already exists", name.getNameValue()), e.getMessage());
         }
     }
-    
+
     @AfterClass
-    public static void deleteCreatedUser() {
+    public static void deleteCreatedGroups() {
         final FreeIPAConnector fipac = new FreeIPAConnector();
         fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
         for (final String uid : groupsCreated) {

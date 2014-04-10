@@ -33,7 +33,7 @@ import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.util.client.LDAPConstants;
 
-public class PosixIDs {
+public class FreeIPAPosixIDs {
 
     private static final String POSIXIDS_DN
             = "cn=Posix IDs,cn=Distributed Numeric Assignment Plugin,cn=plugins,cn=config";
@@ -42,7 +42,7 @@ public class PosixIDs {
 
     private final FreeIPAConnection freeIPAConnection;
 
-    public PosixIDs(final FreeIPAConfiguration freeIPAConfiguration) {
+    public FreeIPAPosixIDs(final FreeIPAConfiguration freeIPAConfiguration) {
         freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 

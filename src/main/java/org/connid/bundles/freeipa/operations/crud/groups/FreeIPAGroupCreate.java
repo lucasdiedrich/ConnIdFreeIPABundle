@@ -36,7 +36,7 @@ import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
-import org.connid.bundles.freeipa.beans.server.PosixIDs;
+import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
 import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
@@ -44,7 +44,6 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
@@ -54,22 +53,17 @@ public class FreeIPAGroupCreate {
 
     private final Set<Attribute> attrs;
 
-    private final OperationOptions options;
-
     private final FreeIPAConfiguration freeIPAConfiguration;
 
     private final FreeIPAConnection freeIPAConnection;
 
-    private final PosixIDs posixIDs;
+    private final FreeIPAPosixIDs posixIDs;
 
-    public FreeIPAGroupCreate(final Set<Attribute> attrs,
-            final OperationOptions options,
-            final FreeIPAConfiguration freeIPAConfiguration) {
+    public FreeIPAGroupCreate(final Set<Attribute> attrs, final FreeIPAConfiguration freeIPAConfiguration) {
         this.attrs = attrs;
-        this.options = options;
         this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
-        this.posixIDs = new PosixIDs(freeIPAConfiguration);
+        this.posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
     }
 
     public final Uid createGroup() {

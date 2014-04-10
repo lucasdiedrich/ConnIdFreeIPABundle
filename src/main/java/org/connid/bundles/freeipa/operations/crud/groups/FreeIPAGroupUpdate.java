@@ -23,7 +23,11 @@
 package org.connid.bundles.freeipa.operations.crud.groups;
 
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
 import com.unboundid.ldap.sdk.ModifyRequest;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -32,11 +36,11 @@ import java.util.Set;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.Name;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.Uid;
 
@@ -48,18 +52,15 @@ public class FreeIPAGroupUpdate {
 
     private final Set<Attribute> attrs;
 
-    private final OperationOptions options;
-
     private final FreeIPAConfiguration freeIPAConfiguration;
 
     private final FreeIPAConnection freeIPAConnection;
 
     public FreeIPAGroupUpdate(final Uid uid,
-            final Set<Attribute> replaceAttributes, final OperationOptions options,
+            final Set<Attribute> replaceAttributes,
             final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
         this.attrs = replaceAttributes;
-        this.options = options;
         this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
@@ -102,8 +103,19 @@ public class FreeIPAGroupUpdate {
                 uid, otherAttributes,freeIPAConfiguration);
 
         LOG.info("Calling server to modify {0}", modifyRequest.getDN());
+        
+        try {
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(modifyRequest.getDN(),
+                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
+                freeIPAConnection.lDAPConnection().modify(modifyRequest);
+            }
+        } catch (final LDAPSearchException e) {
+            if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
+                throw new ConnectorException(String.format("Group %s already exists", uid.getUidValue()));
+            }
 
-        freeIPAConnection.lDAPConnection().modify(modifyRequest);
+        }
 
         return uid;
     }

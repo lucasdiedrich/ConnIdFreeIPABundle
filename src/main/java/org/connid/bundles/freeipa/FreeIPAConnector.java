@@ -81,9 +81,9 @@ public class FreeIPAConnector extends LdapConnector {
     public Uid create(final ObjectClass oclass, final Set<Attribute> attrs, final OperationOptions options) {
         Uid uid;
         if (ObjectClass.ACCOUNT.equals(oclass)) {
-            uid = new FreeIPAUserCreate(attrs, options, freeIPAConfiguration).createUser();
+            uid = new FreeIPAUserCreate(attrs, freeIPAConfiguration).createUser();
         } else if (ObjectClass.GROUP.equals(oclass)) {
-            uid = new FreeIPAGroupCreate(attrs, options, freeIPAConfiguration).createGroup();
+            uid = new FreeIPAGroupCreate(attrs, freeIPAConfiguration).createGroup();
         } else {
             throw new ConnectorException("Object class not valid");
         }
@@ -96,9 +96,9 @@ public class FreeIPAConnector extends LdapConnector {
             final Set<Attribute> replaceAttributes, final OperationOptions options) {
         Uid finalUid;
         if (ObjectClass.ACCOUNT.equals(oclass)) {
-            finalUid = new FreeIPAUserUpdate(uid, replaceAttributes, options, freeIPAConfiguration).updateUser();
+            finalUid = new FreeIPAUserUpdate(uid, replaceAttributes, freeIPAConfiguration).updateUser();
         } else if (ObjectClass.GROUP.equals(oclass)) {
-            finalUid = new FreeIPAGroupUpdate(uid, replaceAttributes, options, freeIPAConfiguration).updateGroup();
+            finalUid = new FreeIPAGroupUpdate(uid, replaceAttributes, freeIPAConfiguration).updateGroup();
         } else {
             throw new ConnectorException("Object class not valid");
         }
