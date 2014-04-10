@@ -26,6 +26,7 @@ import java.util.Set;
 import org.connid.bundles.freeipa.operations.FreeIPAAuthenticate;
 import org.connid.bundles.freeipa.operations.FreeIPACheckAlive;
 import org.connid.bundles.freeipa.operations.FreeIPADispose;
+import org.connid.bundles.freeipa.operations.FreeIPASchema;
 import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupCreate;
 import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupDelete;
 import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupUpdate;
@@ -39,6 +40,7 @@ import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.Configuration;
 import org.identityconnectors.framework.spi.ConnectorClass;
@@ -116,6 +118,13 @@ public class FreeIPAConnector extends LdapConnector {
             throw new ConnectorException("Object class not valid");
         }
         dispose();
+    }
+
+    @Override
+    public Schema schema() {
+        final Schema freeIpaSchema = new FreeIPASchema(freeIPAConfiguration).schema();
+        dispose();
+        return freeIpaSchema;
     }
 
     @Override
