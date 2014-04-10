@@ -24,6 +24,10 @@ package org.connid.bundles.freeipa.operations.crud.users;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +38,7 @@ import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.util.client.ConnectorUtils;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.connid.bundles.freeipa.beans.server.PosixIDs;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -126,22 +131,31 @@ public class FreeIPAUserCreate {
             throw new IllegalArgumentException("GivenName and SN attributes are required");
         }
 
-        final FreeIPAUserAccount baseUserAccount
+        final FreeIPAUserAccount freeIPAUserAccount
                 = new FreeIPAUserAccount(nameAttr.getNameValue(), password, attrStatus, givenName, sn,
                         posixIDsNumber, null, freeIPAConfiguration);
 
-        LOG.info("Base AccountUser {0}", baseUserAccount);
-
-        final AddRequest addRequest = baseUserAccount.toAddRequest();
+        final AddRequest addRequest = freeIPAUserAccount.toAddRequest();
 
         if (!otherAttributes.isEmpty()) {
-            baseUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
+            freeIPAUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
         }
 
-        LOG.info("Complete AccountUser {0}", baseUserAccount);
+        LOG.info("Dn user account {0}", freeIPAUserAccount.getDn());
 
-        freeIPAConnection.lDAPConnection().add(addRequest);
-        posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+        try {
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(freeIPAUserAccount.getDn(), SearchScope.BASE, "uid=*",
+                    LDAPConstants.OBJECT_CLASS_STAR);
+            if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
+                throw new ConnectorException(String.format("User %s already exists", nameAttr.getNameValue()));
+            }
+        } catch (final LDAPSearchException e) {
+            if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
+                freeIPAConnection.lDAPConnection().add(addRequest);
+                posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+            }
+
+        }
         return new Uid(nameAttr.getNameValue());
     }
 }

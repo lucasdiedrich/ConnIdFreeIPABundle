@@ -58,6 +58,10 @@ public class FreeIPAGroupAccount {
         gidNumber = posixIDsNumber;
     }
 
+    public String getDn() {
+        return dn;
+    }
+
     private enum DefaultObjectClasses {
 
         TOP("top"),

@@ -103,6 +103,10 @@ public class FreeIPAUserAccount {
         krbPrincipalName = uid + "@" + freeIPAConfiguration.getKerberosRealm();
     }
 
+    public String getDn() {
+        return dn;
+    }
+
     private enum DefaultObjectClasses {
 
         TOP("top"),

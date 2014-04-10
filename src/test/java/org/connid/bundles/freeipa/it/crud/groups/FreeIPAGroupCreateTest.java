@@ -22,18 +22,26 @@
  */
 package org.connid.bundles.freeipa.it.crud.groups;
 
+import static org.junit.Assert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
 import org.connid.bundles.freeipa.FreeIPAConnector;
 import org.connid.bundles.freeipa.commons.GroupAttributesTestValue;
 import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 public class FreeIPAGroupCreateTest {
-    
-    private FreeIPAConnector freeIPAConnector;
+
+    private static FreeIPAConnector freeIPAConnector;
+
+    private final static List<String> groupsCreated = new ArrayList<String>();
 
     @Before
     public void before() {
@@ -45,6 +53,74 @@ public class FreeIPAGroupCreateTest {
     public void freeIPACreateTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
         freeIPAConnector.create(ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        groupsCreated.add(name.getNameValue());
     }
     
+    @Test(expected = IllegalArgumentException.class)
+    public void freeIPACreateWithNullAttrsTest() {
+        freeIPAConnector.create(ObjectClass.GROUP, null, null);
+    }
+
+    @Test
+    public void freeIPACreateWithNullAttrsCatchTest() {
+        try {
+            freeIPAConnector.create(ObjectClass.GROUP, null, null);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("No Name attribute provided in the attributes", e.getMessage());
+        }
+
+    }
+
+    @Test(expected = ConnectorException.class)
+    public void freeIPACreateWithNullObjectClassTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);
+    }
+
+    @Test
+    public void freeIPACreateWithNullObjectClassCatchTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        try {
+            freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        } catch (final ConnectorException e) {
+            assertEquals("Object class not valid", e.getMessage());
+        }
+    }
+    
+    @Test(expected = ConnectorException.class)
+    public void createExistsGroupTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        final Uid uid = freeIPAConnector.create(
+                ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
+        groupsCreated.add(name.getNameValue());
+        freeIPAConnector.create(
+                ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+    }
+
+    @Test
+    public void createExistsUserCatchTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        final Uid uid = freeIPAConnector.create(
+                ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
+        groupsCreated.add(name.getNameValue());
+        try {
+            freeIPAConnector.create(
+                    ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        } catch (final ConnectorException e) {
+            assertEquals(String.format("Group %s already exists", name.getNameValue()), e.getMessage());
+        }
+    }
+    
+    @AfterClass
+    public static void deleteCreatedUser() {
+        final FreeIPAConnector fipac = new FreeIPAConnector();
+        fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
+        for (final String uid : groupsCreated) {
+            fipac.delete(ObjectClass.GROUP, new Uid(uid), null);
+        }
+        freeIPAConnector.dispose();
+    }
+
 }

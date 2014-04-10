@@ -31,6 +31,7 @@ import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 
 public class PosixIDs {
 
@@ -50,7 +51,8 @@ public class PosixIDs {
 
         final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
         final String nextPosixIDs = lDAPConnection.search(POSIXIDS_DN, SearchScope.BASE,
-                "objectClass=*", DNA_ATTRIBUTE).getSearchEntry(POSIXIDS_DN).getAttributeValue(DNA_ATTRIBUTE);
+                LDAPConstants.OBJECT_CLASS_STAR, DNA_ATTRIBUTE).getSearchEntry(POSIXIDS_DN).getAttributeValue(
+                        DNA_ATTRIBUTE);
         lDAPConnection.close();
         return nextPosixIDs;
     }

@@ -24,6 +24,10 @@ package org.connid.bundles.freeipa.operations.crud.groups;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +37,7 @@ import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.connid.bundles.freeipa.beans.server.PosixIDs;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
@@ -119,16 +124,27 @@ public class FreeIPAGroupCreate {
         final FreeIPAGroupAccount freeIPAGroupAccount
                 = new FreeIPAGroupAccount(nameAttr.getNameValue(), description, posixIDsNumber, freeIPAConfiguration);
 
-        LOG.info("Group account {0}", freeIPAGroupAccount);
-
         final AddRequest addRequest = freeIPAGroupAccount.toAddRequest();
 
         if (!otherAttributes.isEmpty()) {
             freeIPAGroupAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
         }
 
-        freeIPAConnection.lDAPConnection().add(addRequest);
-        posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+        LOG.info("Dn group account {0}", freeIPAGroupAccount.getDn());
+
+        try {
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(freeIPAGroupAccount.getDn(),
+                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
+                throw new ConnectorException(String.format("Group %s already exists", nameAttr.getNameValue()));
+            }
+        } catch (final LDAPSearchException e) {
+            if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
+                freeIPAConnection.lDAPConnection().add(addRequest);
+                posixIDs.updatePosixIDs(posixIDsNumber, freeIPAConfiguration);
+            }
+
+        }
         return new Uid(nameAttr.getNameValue());
     }
 }
