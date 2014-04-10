@@ -58,12 +58,12 @@ public class FreeIPAGroupCreateTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void freeIPACreateWithNullAttrsTest() {
+    public void createWithNullAttrsTest() {
         freeIPAConnector.create(ObjectClass.GROUP, null, null);
     }
 
     @Test
-    public void freeIPACreateWithNullAttrsCatchTest() {
+    public void createWithNullAttrsCatchTest() {
         try {
             freeIPAConnector.create(ObjectClass.GROUP, null, null);
         } catch (final IllegalArgumentException e) {
@@ -73,13 +73,13 @@ public class FreeIPAGroupCreateTest {
     }
 
     @Test(expected = ConnectorException.class)
-    public void freeIPACreateWithNullObjectClassTest() {
+    public void createWithNullObjectClassTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
         freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);
     }
 
     @Test
-    public void freeIPACreateWithNullObjectClassCatchTest() {
+    public void createWithNullObjectClassCatchTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
         try {
             freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);

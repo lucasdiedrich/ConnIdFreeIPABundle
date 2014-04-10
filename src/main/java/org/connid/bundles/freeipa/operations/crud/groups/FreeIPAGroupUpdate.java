@@ -112,9 +112,8 @@ public class FreeIPAGroupUpdate {
             }
         } catch (final LDAPSearchException e) {
             if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
-                throw new ConnectorException(String.format("Group %s already exists", uid.getUidValue()));
+                throw new ConnectorException(String.format("Group %s does not exists", uid.getUidValue()));
             }
-
         }
 
         return uid;

@@ -31,7 +31,6 @@ import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
 import org.connid.bundles.freeipa.commons.GroupAttributesTestValue;
 import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
-import org.connid.bundles.freeipa.commons.UserAttributesTestValue;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -134,7 +133,7 @@ public class FreeIPAGroupUpdateTest {
                 ObjectClass.GROUP, new Uid("NOTEXISTS"), 
                 SampleAttributesFactory.sampleUserSetAttributes(new Name("NOTEXISTS")), null);
         } catch (final ConnectorException e) {
-            assertEquals(String.format("Group %s already exists", "NOTEXISTS"), e.getMessage());
+            assertEquals(String.format("Group %s does not exists", "NOTEXISTS"), e.getMessage());
         }
     }
 

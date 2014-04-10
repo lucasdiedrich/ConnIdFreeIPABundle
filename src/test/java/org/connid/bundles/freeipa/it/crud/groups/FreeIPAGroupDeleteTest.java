@@ -22,8 +22,13 @@
  */
 package org.connid.bundles.freeipa.it.crud.groups;
 
+import static org.junit.Assert.assertEquals;
 import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.commons.GroupAttributesTestValue;
+import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
+import org.identityconnectors.framework.common.exceptions.ConnectorException;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.Before;
@@ -31,7 +36,7 @@ import org.junit.Test;
 
 public class FreeIPAGroupDeleteTest {
 
-    private FreeIPAConnector freeIPAConnector;
+    private static FreeIPAConnector freeIPAConnector;
 
     @Before
     public void before() {
@@ -40,8 +45,57 @@ public class FreeIPAGroupDeleteTest {
     }
 
     @Test
-    public void freeIPADeleteTest() {
-        final Uid uid = new Uid("Test Group14801");
+    public void sampleDeleteTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        final Uid uid = freeIPAConnector.create(
+                ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
         freeIPAConnector.delete(ObjectClass.GROUP, uid, null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteWithNullUidTest() {
+        freeIPAConnector.delete(ObjectClass.GROUP, null, null);
+    }
+
+    @Test
+    public void deleteWithNullUidCatchTest() {
+        try {
+            freeIPAConnector.delete(ObjectClass.GROUP, null, null);
+        } catch (final IllegalArgumentException e) {
+            assertEquals("No uid attribute provided in the attributes", e.getMessage());
+        }
+    }
+    
+    @Test(expected = ConnectorException.class)
+    public void deleteNullObjectClassTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);
+    }
+
+    @Test
+    public void deleteNullObjectClassCatchTest() {
+        final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
+        try {
+            freeIPAConnector.create(null, SampleAttributesFactory.sampleGroupAttributes(name), null);
+        } catch (final ConnectorException e) {
+            assertEquals("Object class not valid", e.getMessage());
+        }
+    }
+    
+    @Test(expected = ConnectorException.class)
+    public void deleteNotExistsGroupTest() {
+        freeIPAConnector.delete(
+                ObjectClass.GROUP, new Uid("NOTEXISTS"), null);
+    }
+
+    @Test
+    public void deleteNotExistsGroupCatchTest() {
+        try {
+            freeIPAConnector.delete(
+                ObjectClass.GROUP, new Uid("NOTEXISTS"), null);
+        } catch (final ConnectorException e) {
+            assertEquals(String.format("Group %s does not exists", "NOTEXISTS"), e.getMessage());
+        }
     }
 }

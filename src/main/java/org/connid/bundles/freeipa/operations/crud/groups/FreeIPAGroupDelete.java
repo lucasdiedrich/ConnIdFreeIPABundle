@@ -24,13 +24,17 @@ package org.connid.bundles.freeipa.operations.crud.groups;
 
 import org.connid.bundles.freeipa.operations.crud.users.*;
 import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchScope;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
-import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class FreeIPAGroupDelete {
@@ -39,14 +43,10 @@ public class FreeIPAGroupDelete {
 
     private final Uid uid;
 
-    private final OperationOptions options;
-
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAGroupDelete(final Uid uid, final OperationOptions options,
-            final FreeIPAConfiguration freeIPAConfiguration) {
+    public FreeIPAGroupDelete(final Uid uid, final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
-        this.options = options;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
@@ -68,10 +68,20 @@ public class FreeIPAGroupDelete {
             LOG.error("No uid attribute provided in the attributes");
             throw new IllegalArgumentException("No uid attribute provided in the attributes");
         }
-
-        LOG.info("uid found {0}", uid.getUidValue());
-
+        
         LOG.info("Calling server to delete {0}", uid.getUidValue());
-        freeIPAConnection.lDAPConnection().delete(FreeIPAGroupAccount.groupDN(uid.getUidValue()));
+        
+        try {
+            final String groupDn = FreeIPAGroupAccount.groupDN(uid.getUidValue());
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(groupDn,
+                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
+                freeIPAConnection.lDAPConnection().delete(groupDn);
+            }
+        } catch (final LDAPSearchException e) {
+            if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
+                throw new ConnectorException(String.format("Group %s does not exists", uid.getUidValue()));
+            }
+        }
     }
 }

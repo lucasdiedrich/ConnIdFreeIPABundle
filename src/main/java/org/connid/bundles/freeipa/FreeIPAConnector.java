@@ -109,9 +109,9 @@ public class FreeIPAConnector extends LdapConnector {
     @Override
     public void delete(final ObjectClass oclass, final Uid uid, final OperationOptions options) {
         if (ObjectClass.ACCOUNT.equals(oclass)) {
-            new FreeIPAUserDelete(uid, options, freeIPAConfiguration).deleteUser();
+            new FreeIPAUserDelete(uid, freeIPAConfiguration).deleteUser();
         } else if (ObjectClass.GROUP.equals(oclass)) {
-            new FreeIPAGroupDelete(uid, options, freeIPAConfiguration).deleteGroup();
+            new FreeIPAGroupDelete(uid, freeIPAConfiguration).deleteGroup();
         } else {
             throw new ConnectorException("Object class not valid");
         }

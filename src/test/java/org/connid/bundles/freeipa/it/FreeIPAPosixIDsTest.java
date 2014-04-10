@@ -30,14 +30,13 @@ import org.connid.bundles.freeipa.beans.server.FreeIPAPosixIDs;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class PosixIDsTest {
+public class FreeIPAPosixIDsTest {
 
     @Test
     public void PosixIDsTest() throws GeneralSecurityException, LDAPException {
         final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
         final FreeIPAPosixIDs posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
-//        posixIDs.updatePosixIDs(posixIDs.nextPosixIDs(freeIPAConfiguration), freeIPAConfiguration);
         Assert.assertNull(posixIDs.nextPosixIDs(freeIPAConfiguration));
     }
 }
