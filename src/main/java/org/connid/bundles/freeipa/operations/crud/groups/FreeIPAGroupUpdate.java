@@ -78,7 +78,9 @@ public class FreeIPAGroupUpdate {
     }
 
     private Uid doUpdate() throws LDAPException, GeneralSecurityException {
-
+        if (attrs == null || attrs.isEmpty()) {
+            return uid;
+        }
         if (uid == null) {
             LOG.error("No uid attribute provided in the attributes");
             throw new IllegalArgumentException("No uid attribute provided in the attributes");
@@ -100,10 +102,10 @@ public class FreeIPAGroupUpdate {
         }
 
         final ModifyRequest modifyRequest = FreeIPAGroupAccount.createModifyRequest(
-                uid, otherAttributes,freeIPAConfiguration);
+                uid, otherAttributes, freeIPAConfiguration);
 
         LOG.info("Calling server to modify {0}", modifyRequest.getDN());
-        
+
         try {
             final SearchResult sr = freeIPAConnection.lDAPConnection().search(modifyRequest.getDN(),
                     SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);

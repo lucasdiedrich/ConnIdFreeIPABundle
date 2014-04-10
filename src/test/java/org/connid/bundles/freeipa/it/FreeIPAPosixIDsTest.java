@@ -37,6 +37,6 @@ public class FreeIPAPosixIDsTest {
         final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
         final FreeIPAPosixIDs posixIDs = new FreeIPAPosixIDs(freeIPAConfiguration);
-        Assert.assertNull(posixIDs.nextPosixIDs(freeIPAConfiguration));
+        Assert.assertNotNull(posixIDs.nextPosixIDs(freeIPAConfiguration));
     }
 }

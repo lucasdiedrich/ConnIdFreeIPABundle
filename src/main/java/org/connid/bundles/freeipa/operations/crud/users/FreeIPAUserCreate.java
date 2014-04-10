@@ -91,10 +91,6 @@ public class FreeIPAUserCreate {
         LOG.info("Name found {0}", nameAttr.getNameValue());
         final String posixIDsNumber = posixIDs.nextPosixIDs(freeIPAConfiguration);
         LOG.info("Next posix IDs {0}", posixIDsNumber);
-        for (Attribute attribute : attrs) {
-            LOG.info("Attribute name {0}", attribute.getName());
-            LOG.info("Attribute value {0}", attribute.getValue().get(0));
-        }
 
         final Map<String, List<Object>> otherAttributes = new HashMap<String, List<Object>>();
         String password = "";
