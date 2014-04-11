@@ -90,13 +90,14 @@ public class FreeIPAExecuteQuery {
         }
     }
 
-    private void fillUserHandler(final SearchResult results) {
+    private void fillUserHandler(final SearchResult results) throws LDAPException, GeneralSecurityException {
         if (results == null) {
             throw new ConnectorException("No results found");
         }
 
         final ConnectorObjectBuilder bld = new ConnectorObjectBuilder();
 
+        String uid = "";
         for (final SearchResultEntry searchResultEntry : results.getSearchEntries()) {
             LOG.info("Adding {0} to results", searchResultEntry.getDN());
 
@@ -104,15 +105,18 @@ public class FreeIPAExecuteQuery {
                 if (freeIPAConfiguration.getUidAttribute().equalsIgnoreCase(attribute.getName())) {
                     bld.setName(attribute.getValue());
                     bld.setUid(attribute.getValue());
+                    uid = attribute.getValue();
                 } else if (freeIPAConfiguration.getPasswordAttribute().equalsIgnoreCase(attribute.getName())) {
                     //DO NOTHING
-                } else if (FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue()
-                        .equalsIgnoreCase(attribute.getName())) {
-                    bld.addAttribute(AttributeBuilder.buildEnabled(Boolean.valueOf(attribute.getValue())));
                 } else {
                     bld.addAttribute(attribute.getName(), attribute.getValue());
                 }
             }
+            
+            if (objectClass.equals(ObjectClass.ACCOUNT)) {
+                bld.addAttribute(AttributeBuilder.buildEnabled(FreeIPAUserAccount.isEnabled(uid, freeIPAConnection)));
+            }
+            
             bld.setObjectClass(objectClass);
             resultsHandler.handle(bld.build());
         }

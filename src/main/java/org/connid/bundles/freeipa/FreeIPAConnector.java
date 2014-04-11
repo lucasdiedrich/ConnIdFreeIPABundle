@@ -57,6 +57,7 @@ public class FreeIPAConnector extends LdapConnector {
 
     @Override
     public void init(final Configuration cfg) {
+        super.init(cfg);
         freeIPAConfiguration = (FreeIPAConfiguration) cfg;
     }
 

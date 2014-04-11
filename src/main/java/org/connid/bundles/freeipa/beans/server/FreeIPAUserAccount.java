@@ -24,14 +24,20 @@ package org.connid.bundles.freeipa.beans.server;
 
 import com.unboundid.ldap.sdk.AddRequest;
 import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
+import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -261,5 +267,14 @@ public class FreeIPAUserAccount {
             modifications.add(new Modification(ModificationType.REPLACE, attr.getKey(), stringAttributes));
         }
         return new ModifyRequest(dn, modifications);
+    }
+    
+    public static boolean isEnabled(final String uid, final FreeIPAConnection freeIPAConnection)
+            throws LDAPException, GeneralSecurityException{
+        final SearchResultEntry e = freeIPAConnection.lDAPConnection().searchForEntry(userDN(uid),
+                SearchScope.BASE,
+                LDAPConstants.OBJECT_CLASS_STAR,
+                FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue());
+        return !e.getAttributeValueAsBoolean(FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue());
     }
 }
