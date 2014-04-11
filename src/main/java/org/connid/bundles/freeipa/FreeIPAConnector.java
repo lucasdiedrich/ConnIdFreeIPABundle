@@ -33,13 +33,16 @@ import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupUpdate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserCreate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserDelete;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserUpdate;
+import org.connid.bundles.freeipa.operations.search.FreeIPAExecuteQuery;
 import org.connid.bundles.ldap.LdapConnector;
+import org.connid.bundles.ldap.search.LdapFilter;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Schema;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.Configuration;
@@ -127,6 +130,13 @@ public class FreeIPAConnector extends LdapConnector {
         return freeIpaSchema;
     }
 
+    @Override
+    public void executeQuery(final ObjectClass oclass, final LdapFilter query,
+            final ResultsHandler handler, final OperationOptions options) {
+        new FreeIPAExecuteQuery(oclass, query, handler, freeIPAConfiguration).executeQuery();
+        dispose();
+    }
+    
     @Override
     public void dispose() {
         new FreeIPADispose(freeIPAConfiguration).closeConnection();
