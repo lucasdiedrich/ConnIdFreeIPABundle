@@ -22,24 +22,92 @@
  */
 package org.connid.bundles.freeipa.it;
 
+import static org.junit.Assert.assertEquals;
+
+import com.unboundid.ldap.sdk.LDAPException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.FreeIPAConnector;
+import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
-import org.identityconnectors.common.security.GuardedString;
+import org.connid.bundles.freeipa.commons.UserAttributesTestValue;
+import org.identityconnectors.common.CollectionUtil;
+import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
+import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class FreeIPAAuthenticateTest {
 
-    private final FreeIPAConnector freeIPAConnector = new FreeIPAConnector();
+    private static FreeIPAConnector freeIPAConnector;
+
+    private final static List<String> usersCreated = new ArrayList<String>();
+
+    @Before
+    public void before() {
+        freeIPAConnector = new FreeIPAConnector();
+        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
+    }
 
     @Test
-    public void freeIPAAuthenticateWithWrongUsernameTest() {
-        freeIPAConnector.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
-        final Uid uid = freeIPAConnector.authenticate(
-                    ObjectClass.ACCOUNT, "syncope", new GuardedString("password".toCharArray()), null);
-            Assert.assertEquals("syncope", uid.getUidValue());
+    public void authenticationTest() {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        final Uid createdUid = freeIPAConnector.create(
+                ObjectClass.ACCOUNT, SampleAttributesFactory.sampleUserSetAttributes(name), null);
+        assertEquals(name.getNameValue(), createdUid.getUidValue());
+        usersCreated.add(name.getNameValue());
+        final Uid authUid = freeIPAConnector.authenticate(
+                ObjectClass.ACCOUNT, createdUid.getUidValue(), UserAttributesTestValue.userPassword, null);
+        Assert.assertEquals(authUid, createdUid);
+    }
+
+    @Test
+    public void authenticateAfterPasswordUpdate() throws LDAPException, GeneralSecurityException {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        final Uid createdUid = freeIPAConnector.create(
+                ObjectClass.ACCOUNT, SampleAttributesFactory.sampleUserSetAttributes(name), null);
+        assertEquals(name.getNameValue(), createdUid.getUidValue());
+        usersCreated.add(name.getNameValue());
+        final Uid authUid = freeIPAConnector.authenticate(
+                ObjectClass.ACCOUNT, createdUid.getUidValue(), UserAttributesTestValue.userPassword, null);
+        System.out.println(">>>>>>>>>>>>>>>> ENABLED: " + FreeIPAUserAccount.isEnabled(authUid.getUidValue(),
+                new FreeIPAConnection(SampleConfigurationFactory.configurationWithRightUsernameAndPassword())));
+        Assert.assertEquals(createdUid, authUid);
+        final Set<Attribute> attributes = sampleSetAttributes();
+        attributes.add(AttributeBuilder.buildPassword(UserAttributesTestValue.newUserPassword));
+//        final Uid updatedUid = freeIPAConnector.update(ObjectClass.ACCOUNT, authUid, attributes, null);
+//        System.out.println(">>>>>>>>>>>>>>>> USER: "+ updatedUid.getUidValue()
+//                +"ENABLED: " + FreeIPAUserAccount.isEnabled(updatedUid.getUidValue(),
+//                new FreeIPAConnection(SampleConfigurationFactory.configurationWithRightUsernameAndPassword())));
+        final Uid newPasswordUid = freeIPAConnector.authenticate(
+                ObjectClass.ACCOUNT, authUid.getUidValue(), UserAttributesTestValue.userPassword, null);
+        Assert.assertEquals(authUid, newPasswordUid);
+    }
+
+    private Set<Attribute> sampleSetAttributes() {
+        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(false));
+        attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
+                CollectionUtil.newSet(UserAttributesTestValue.newInitials)));
+        return attributes;
+    }
+
+    @AfterClass
+    public static void deleteCreatedUser() {
+        final FreeIPAConnector fipac = new FreeIPAConnector();
+        fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
+        for (final String uid : usersCreated) {
+            fipac.delete(ObjectClass.ACCOUNT, new Uid(uid), null);
+        }
+        freeIPAConnector.dispose();
     }
 
 }

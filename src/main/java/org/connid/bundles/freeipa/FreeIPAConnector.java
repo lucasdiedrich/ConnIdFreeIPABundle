@@ -73,18 +73,20 @@ public class FreeIPAConnector extends LdapConnector {
 
     @Override
     public void checkAlive() {
-        LOG.info("Trying check alive operation");
+        LOG.info("Called check alive operation");
         new FreeIPACheckAlive(freeIPAConfiguration).check();
     }
 
     @Override
     public Uid authenticate(final ObjectClass objectClass,
             final String username, final GuardedString password, final OperationOptions options) {
+        LOG.info("Authenticate user {0}", username);
         return new FreeIPAAuthenticate(objectClass, username, password, options, freeIPAConfiguration).authenticate();
     }
 
     @Override
     public Uid create(final ObjectClass oclass, final Set<Attribute> attrs, final OperationOptions options) {
+        LOG.info("Create {0}", oclass);
         Uid uid;
         if (ObjectClass.ACCOUNT.equals(oclass)) {
             uid = new FreeIPAUserCreate(attrs, freeIPAConfiguration).createUser();
@@ -100,6 +102,7 @@ public class FreeIPAConnector extends LdapConnector {
     @Override
     public Uid update(final ObjectClass oclass, final Uid uid,
             final Set<Attribute> replaceAttributes, final OperationOptions options) {
+        LOG.info("Update {0} {1}", oclass, uid);
         Uid finalUid;
         if (ObjectClass.ACCOUNT.equals(oclass)) {
             finalUid = new FreeIPAUserUpdate(uid, replaceAttributes, freeIPAConfiguration).updateUser();
@@ -114,6 +117,7 @@ public class FreeIPAConnector extends LdapConnector {
 
     @Override
     public void delete(final ObjectClass oclass, final Uid uid, final OperationOptions options) {
+        LOG.info("Delete {0} {1}", oclass, uid);
         if (ObjectClass.ACCOUNT.equals(oclass)) {
             new FreeIPAUserDelete(uid, freeIPAConfiguration).deleteUser();
         } else if (ObjectClass.GROUP.equals(oclass)) {
@@ -126,6 +130,7 @@ public class FreeIPAConnector extends LdapConnector {
 
     @Override
     public Schema schema() {
+        LOG.info("Called schema operation");
         final Schema freeIpaSchema = new FreeIPASchema(freeIPAConfiguration).schema();
         dispose();
         return freeIpaSchema;
@@ -134,10 +139,11 @@ public class FreeIPAConnector extends LdapConnector {
     @Override
     public void executeQuery(final ObjectClass oclass, final LdapFilter query,
             final ResultsHandler handler, final OperationOptions options) {
+        LOG.info("Executing {0} ldap search to find {1}", oclass, query);
         new FreeIPAExecuteQuery(oclass, query, handler, freeIPAConfiguration).executeQuery();
         dispose();
     }
-    
+
     @Override
     public void dispose() {
         new FreeIPADispose(freeIPAConfiguration).closeConnection();

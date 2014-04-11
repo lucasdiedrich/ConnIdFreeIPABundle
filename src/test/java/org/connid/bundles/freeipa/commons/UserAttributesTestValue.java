@@ -30,12 +30,18 @@ public class UserAttributesTestValue {
 
     public static final GuardedString userPassword = new GuardedString("password".toCharArray());
 
+    public static final GuardedString newUserPassword = new GuardedString("newpassword".toCharArray());
+
     public static final String givenName = "Utente";
 
     public static final String sn = "Test";
 
     public static final String initials = "UT";
+    
+    public static final String newInitials = "NI";
 
     public static final String mail = "utente.test@example.com";
+    
+    public static final String not_exists = "NOT_EXISTS";
 
 }

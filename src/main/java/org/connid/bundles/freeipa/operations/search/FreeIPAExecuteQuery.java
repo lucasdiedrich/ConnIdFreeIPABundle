@@ -1,24 +1,18 @@
 /**
- * ====================
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * ==================== DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
- * Copyright 2011-2013 Tirasa. All rights reserved.
+ * Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved. Copyright 2011-2013 Tirasa. All rights reserved.
  *
- * The contents of this file are subject to the terms of the Common Development
- * and Distribution License("CDDL") (the "License"). You may not use this file
- * except in compliance with the License.
+ * The contents of this file are subject to the terms of the Common Development and Distribution License("CDDL") (the
+ * "License"). You may not use this file except in compliance with the License.
  *
- * You can obtain a copy of the License at https://oss.oracle.com/licenses/CDDL
- * See the License for the specific language governing permissions and limitations
- * under the License.
+ * You can obtain a copy of the License at https://oss.oracle.com/licenses/CDDL See the License for the specific
+ * language governing permissions and limitations under the License.
  *
- * When distributing the Covered Code, include this CDDL Header Notice in each file
- * and include the License file at https://oss.oracle.com/licenses/CDDL.
- * If applicable, add the following below this CDDL Header, with the fields
- * enclosed by brackets [] replaced by your own identifying information:
- * "Portions Copyrighted [year] [name of copyright owner]"
- * ====================
+ * When distributing the Covered Code, include this CDDL Header Notice in each file and include the License file at
+ * https://oss.oracle.com/licenses/CDDL. If applicable, add the following below this CDDL Header, with the fields
+ * enclosed by brackets [] replaced by your own identifying information: "Portions Copyrighted [year] [name of copyright
+ * owner]" ====================
  */
 package org.connid.bundles.freeipa.operations.search;
 
@@ -33,6 +27,7 @@ import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.connid.bundles.ldap.search.LdapFilter;
+import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -68,7 +63,7 @@ public class FreeIPAExecuteQuery {
             doExecuteQuery();
         } catch (final LDAPException ex) {
             throw new ConnectorException(ex);
-        } catch (GeneralSecurityException ex) {
+        } catch (final GeneralSecurityException ex) {
             throw new ConnectorException(ex);
         }
     }
@@ -79,9 +74,11 @@ public class FreeIPAExecuteQuery {
         }
 
         if (ldapFilter == null) {
-
+            for (final String baseContext : freeIPAConfiguration.getBaseContextsToSynchronize()) {
+                fillUserHandler(freeIPAConnection.lDAPConnection().search(baseContext, SearchScope.SUB, "uid=*"));
+            }
         } else {
-            Filter filter = Filter.create(ldapFilter.getNativeFilter());
+            final Filter filter = Filter.create(ldapFilter.getNativeFilter());
             LOG.info("Ldap search filter {0}", filter.toNormalizedString());
             for (final String baseContext : freeIPAConfiguration.getBaseContexts()) {
                 fillUserHandler(freeIPAConnection.lDAPConnection().search(baseContext, SearchScope.SUB, filter));
@@ -112,11 +109,11 @@ public class FreeIPAExecuteQuery {
                     bld.addAttribute(attribute.getName(), attribute.getValue());
                 }
             }
-            
-            if (objectClass.equals(ObjectClass.ACCOUNT)) {
+
+            if (StringUtil.isNotBlank(uid) && objectClass.equals(ObjectClass.ACCOUNT)) {
                 bld.addAttribute(AttributeBuilder.buildEnabled(FreeIPAUserAccount.isEnabled(uid, freeIPAConnection)));
             }
-            
+
             bld.setObjectClass(objectClass);
             resultsHandler.handle(bld.build());
         }

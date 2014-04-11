@@ -98,7 +98,7 @@ public class FreeIPAConnection extends LdapConnection {
             authResult = AuthResults.fromValue(e.getMessage());
             throw new FreeIPAException(authResult, e);
         } catch (final NamingException e) {
-            System.out.println(">>>>>>>>>>>>>>>> NamingException: " + e.getMessage());
+            throw new FreeIPAException(e);
         }
         if (!authResult.equals(AuthResults.AUTH_SUCCESS)) {
 
