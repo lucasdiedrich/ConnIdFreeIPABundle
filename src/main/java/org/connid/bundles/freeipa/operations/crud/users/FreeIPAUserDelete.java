@@ -43,10 +43,13 @@ public class FreeIPAUserDelete {
 
     private final Uid uid;
 
+    private final FreeIPAConfiguration freeIPAConfiguration;
+    
     private final FreeIPAConnection freeIPAConnection;
 
     public FreeIPAUserDelete(final Uid uid, final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
+        this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
@@ -72,11 +75,14 @@ public class FreeIPAUserDelete {
         LOG.info("Calling server to delete {0}", uid.getUidValue());
         
         try {
-            final String userDn = FreeIPAUserAccount.userDN(uid.getUidValue());
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(userDn,
-                    SearchScope.BASE, "uid=*", LDAPConstants.OBJECT_CLASS_STAR);
+            final String userDn = FreeIPAUserAccount.userDN(uid.getUidValue(), freeIPAConfiguration);
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    userDn,
+                    SearchScope.BASE,
+                    freeIPAConfiguration.getAccountSearchFilter(),
+                    LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
-                new FreeIPAIpaUsersGroup(freeIPAConnection).removeMember(userDn);
+                new FreeIPAIpaUsersGroup(freeIPAConfiguration).removeMember(userDn);
                 freeIPAConnection.lDAPConnection().delete(userDn);
             }
         } catch (final LDAPSearchException e) {

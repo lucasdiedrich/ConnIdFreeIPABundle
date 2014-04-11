@@ -32,6 +32,7 @@ import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.connid.bundles.ldap.search.LdapFilter;
 import org.identityconnectors.common.StringUtil;
 import org.identityconnectors.common.logging.Log;
@@ -81,15 +82,18 @@ public class FreeIPAExecuteQuery {
 
         if (ldapFilter == null) {
             for (final String baseContext : freeIPAConfiguration.getBaseContextsToSynchronize()) {
-                fillUserHandler(freeIPAConnection.lDAPConnection().search(baseContext, SearchScope.SUB, "uid=*"));
+                fillUserHandler(freeIPAConnection.lDAPConnection().search(
+                        baseContext,
+                        SearchScope.SUB,
+                        freeIPAConfiguration.getAccountSearchFilter()));
             }
         } else {
             final Filter filter = Filter.create(ldapFilter.getNativeFilter());
             LOG.info("Ldap search filter {0}", filter.toNormalizedString());
-            for (final String baseContext : freeIPAConfiguration.getBaseContexts()) {
-                fillUserHandler(freeIPAConnection.lDAPConnection().search(baseContext, SearchScope.SUB, filter));
-            }
-
+            fillUserHandler(freeIPAConnection.lDAPConnection().search(
+                    LDAPConstants.USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix(),
+                    SearchScope.SUB,
+                    filter));
         }
     }
 
@@ -117,7 +121,7 @@ public class FreeIPAExecuteQuery {
             }
 
             if (StringUtil.isNotBlank(uid) && objectClass.equals(ObjectClass.ACCOUNT)) {
-                bld.addAttribute(AttributeBuilder.buildEnabled(FreeIPAUserAccount.isEnabled(uid, freeIPAConnection)));
+                bld.addAttribute(AttributeBuilder.buildEnabled(FreeIPAUserAccount.isEnabled(uid, freeIPAConfiguration)));
             }
 
             bld.setObjectClass(objectClass);

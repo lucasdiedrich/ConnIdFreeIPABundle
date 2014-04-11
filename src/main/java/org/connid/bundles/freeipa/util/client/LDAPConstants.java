@@ -23,7 +23,15 @@
 package org.connid.bundles.freeipa.util.client;
 
 public class LDAPConstants {
-    
+
+    public static final String IPA_USERS_DN_BASE_SUFFIX = "cn=ipausers,cn=groups,cn=accounts";
+
+    public static final String USERS_DN_BASE_SUFFIX = "cn=users,cn=accounts";
+
+    public static final String GROUPS_DN_BASE_SUFFIX = "cn=groups,cn=accounts";
+
     public static final String OBJECT_CLASS_STAR = "objectClass=*";
     
+    public static final String MEMBER_ATTRIBUTE = "member";
+
 }

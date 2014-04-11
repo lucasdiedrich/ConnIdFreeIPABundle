@@ -32,13 +32,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.framework.common.objects.Uid;
 
 public class FreeIPAGroupAccount {
 
     private static final Log LOG = Log.getLog(FreeIPAGroupAccount.class);
-
+    
     private final String dn;
 
     private final List<String> objectClasses;
@@ -51,7 +52,7 @@ public class FreeIPAGroupAccount {
 
     public FreeIPAGroupAccount(final String uid, final String description,
             final String posixIDsNumber, final FreeIPAConfiguration freeIPAConfiguration) {
-        dn = groupDN(uid);
+        dn = groupDN(uid, freeIPAConfiguration);
         objectClasses = DefaultObjectClasses.toList();
         this.description = description;
         cn = uid;
@@ -127,8 +128,11 @@ public class FreeIPAGroupAccount {
         return new AddRequest(dn, attributes);
     }
 
-    public static String groupDN(final String uid) {
-        return "cn=" + uid + ",cn=groups,cn=accounts,dc=tirasa,dc=net";
+    public static String groupDN(final String uid, final FreeIPAConfiguration freeIPAConfiguration) {
+        final String groupDN = freeIPAConfiguration.getCnAttribute() + "=" + uid + ","
+                + LDAPConstants.GROUPS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix();
+        LOG.info("Generated userDN: {0}", groupDN);
+        return groupDN;
     }
 
     public void fillOtherAttributesToAddRequest(final Map<String, List<Object>> otherAttributes,
@@ -149,7 +153,7 @@ public class FreeIPAGroupAccount {
             final Map<String, List<Object>> otherAttributes, final FreeIPAConfiguration freeIPAConfiguration) {
         LOG.info("Updating group {0} with  and attributes {1}", uid, otherAttributes);
         final List<Modification> modifications = new ArrayList<Modification>();
-        final String dn = groupDN(uid.getUidValue());
+        final String dn = groupDN(uid.getUidValue(), freeIPAConfiguration);
         String[] stringAttributes;
         for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
             stringAttributes = new String[attr.getValue().size()];

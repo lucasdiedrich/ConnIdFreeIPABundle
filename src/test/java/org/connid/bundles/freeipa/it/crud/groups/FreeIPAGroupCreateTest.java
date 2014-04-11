@@ -50,7 +50,7 @@ public class FreeIPAGroupCreateTest {
     }
 
     @Test
-    public void freeIPACreateTest() {
+    public void sampleCreateTest() {
         final Name name = new Name(GroupAttributesTestValue.cn + (int) (Math.random() * 100000));
         final Uid uid = freeIPAConnector.create(ObjectClass.GROUP, SampleAttributesFactory.sampleGroupAttributes(name), null);
         assertEquals(name.getNameValue(), uid.getUidValue());

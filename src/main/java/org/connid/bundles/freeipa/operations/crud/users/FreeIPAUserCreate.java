@@ -135,7 +135,10 @@ public class FreeIPAUserCreate {
         LOG.info("Dn user account {0}", freeIPAUserAccount.getDn());
 
         try {
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(freeIPAUserAccount.getDn(), SearchScope.BASE, "uid=*",
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    freeIPAUserAccount.getDn(),
+                    SearchScope.BASE,
+                    freeIPAConfiguration.getAccountSearchFilter(),
                     LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
                 throw new ConnectorException(String.format("User %s already exists", nameAttr.getNameValue()));
@@ -144,7 +147,7 @@ public class FreeIPAUserCreate {
             if (ResultCode.NO_SUCH_OBJECT.equals(e.getResultCode())) {
                 freeIPAConnection.lDAPConnection().add(addRequest);
                 posixIDs.updatePosixIDs(posixIDsNumber);
-                new FreeIPAIpaUsersGroup(freeIPAConnection).addMember(freeIPAUserAccount.getDn());
+                new FreeIPAIpaUsersGroup(freeIPAConfiguration).addMember(freeIPAUserAccount.getDn());
             }
         }
         return new Uid(nameAttr.getNameValue());

@@ -32,6 +32,16 @@ public class FreeIPAConfiguration extends LdapConfiguration {
     private String kerberosRealm;
     
     private String serverBaseHomeDirectory;
+    
+    private String rootSuffix;
+    
+    private String[] userBaseContextsToSynchronize;
+    
+    private String[] groupBaseContextsToSynchronize;
+    
+    private String groupSearchFilter;
+    
+    private String cnAttribute;
 
     @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
             helpMessageKey = "trustallcerts.help", order = 1)
@@ -61,5 +71,55 @@ public class FreeIPAConfiguration extends LdapConfiguration {
 
     public void setServerBaseHomeDirectory(final String serverBaseHomeDirectory) {
         this.serverBaseHomeDirectory = serverBaseHomeDirectory;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 4)
+    public String getRootSuffix() {
+        return rootSuffix;
+    }
+
+    public void setRootSuffix(final String rootSuffix) {
+        this.rootSuffix = rootSuffix;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 5)
+    public String[] getUserBaseContextsToSynchronize() {
+        return userBaseContextsToSynchronize;
+    }
+
+    public void setUserBaseContextsToSynchronize(final String[] userBaseContextsToSynchronize) {
+        this.userBaseContextsToSynchronize = userBaseContextsToSynchronize;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 6)
+    public String[] getGroupBaseContextsToSynchronize() {
+        return groupBaseContextsToSynchronize;
+    }
+
+    public void setGroupBaseContextsToSynchronize(final String[] groupBaseContextsToSynchronize) {
+        this.groupBaseContextsToSynchronize = groupBaseContextsToSynchronize;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 7)
+    public String getGroupSearchFilter() {
+        return groupSearchFilter;
+    }
+
+    public void setGroupSearchFilter(String groupSearchFilter) {
+        this.groupSearchFilter = groupSearchFilter;
+    }
+
+    @ConfigurationProperty(displayMessageKey = "server.base.home.directory.display",
+            helpMessageKey = "server.base.home.directory.help", order = 8)
+    public String getCnAttribute() {
+        return cnAttribute;
+    }
+
+    public void setCnAttribute(String cnAttribute) {
+        this.cnAttribute = cnAttribute;
     }
 }

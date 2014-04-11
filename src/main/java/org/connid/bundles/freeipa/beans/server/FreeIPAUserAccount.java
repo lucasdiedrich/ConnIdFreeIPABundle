@@ -85,7 +85,7 @@ public class FreeIPAUserAccount {
     public FreeIPAUserAccount(final String uid, final String password, final Boolean enabled,
             final String givenName, final String sn, final String posixIDsNumber,
             final List<String> memberOf, final FreeIPAConfiguration freeIPAConfiguration) {
-        dn = userDN(uid);
+        dn = userDN(uid, freeIPAConfiguration);
         nsaccountlock = !enabled;
         displayName = givenName + sn;
         cn = givenName + sn;
@@ -100,9 +100,10 @@ public class FreeIPAUserAccount {
         this.givenName = givenName;
         this.sn = sn;
         initials = givenName.substring(0, 1) + sn.substring(0, 1);
-        mepManagedEntry = "cn=" + uid + ",cn=groups,cn=accounts,dc=tirasa,dc=net";
+        mepManagedEntry = freeIPAConfiguration.getGroupMemberAttribute() + "=" + uid + ","
+                + LDAPConstants.GROUPS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix();
         this.memberOf = new ArrayList<String>();
-        this.memberOf.add("cn=ipausers,cn=groups,cn=accounts,dc=tirasa,dc=net");
+        this.memberOf.add(LDAPConstants.IPA_USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix());
         if (memberOf != null) {
             this.memberOf.addAll(memberOf);
         }
@@ -226,8 +227,11 @@ public class FreeIPAUserAccount {
         return new AddRequest(dn, attributes);
     }
 
-    public static String userDN(final String uid) {
-        return "uid=" + uid + ",cn=users,cn=accounts,dc=tirasa,dc=net";
+    public static String userDN(final String uid, final FreeIPAConfiguration freeIPAConfiguration) {
+        final String userDN = freeIPAConfiguration.getUidAttribute() + "=" + uid + ","
+                + LDAPConstants.USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix();
+        LOG.info("Generated userDN: {0}", userDN);
+        return userDN;
     }
 
     public void fillOtherAttributesToAddRequest(final Map<String, List<Object>> otherAttributes,
@@ -248,7 +252,7 @@ public class FreeIPAUserAccount {
             final Map<String, List<Object>> otherAttributes, final FreeIPAConfiguration freeIPAConfiguration) {
         LOG.info("Updating user {0} with status {1} and attributes {2}", uid, enabled, otherAttributes);
         final List<Modification> modifications = new ArrayList<Modification>();
-        final String dn = userDN(uid.getUidValue());
+        final String dn = userDN(uid.getUidValue(), freeIPAConfiguration);
         if (StringUtil.isNotBlank(password)) {
             modifications.add(new Modification(
                     ModificationType.REPLACE, DefaultAttributes.USER_PASSWORD.ldapValue(), password));
@@ -269,15 +273,17 @@ public class FreeIPAUserAccount {
         return new ModifyRequest(dn, modifications);
     }
 
-    public static boolean isEnabled(final String uid, final FreeIPAConnection freeIPAConnection)
+    public static boolean isEnabled(final String uid, final FreeIPAConfiguration freeIPAConfiguration)
             throws LDAPException, GeneralSecurityException {
-        final SearchResultEntry e = freeIPAConnection.lDAPConnection().searchForEntry(userDN(uid),
+        final FreeIPAConnection freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
+        final SearchResultEntry e = freeIPAConnection.lDAPConnection().searchForEntry(
+                userDN(uid, freeIPAConfiguration),
                 SearchScope.BASE,
                 LDAPConstants.OBJECT_CLASS_STAR,
                 FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue());
         LOG.info("Search user status of {0} {1}", uid, e);
-        return ((e.getAttributeValueAsBoolean(FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue()) == null) 
-            || (e.getAttributeValueAsBoolean(FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue())
+        return ((e.getAttributeValueAsBoolean(FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue()) == null)
+                || (e.getAttributeValueAsBoolean(FreeIPAUserAccount.DefaultAttributes.NS_ACCOUNT_LOCK.ldapValue())
                 == Boolean.FALSE));
     }
 }

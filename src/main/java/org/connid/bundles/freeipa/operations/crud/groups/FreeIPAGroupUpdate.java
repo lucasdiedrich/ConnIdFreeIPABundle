@@ -107,8 +107,11 @@ public class FreeIPAGroupUpdate {
         LOG.info("Calling server to modify {0}", modifyRequest.getDN());
 
         try {
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(modifyRequest.getDN(),
-                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    modifyRequest.getDN(),
+                    SearchScope.BASE,
+                    freeIPAConfiguration.getGroupSearchFilter(),
+                    LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
                 freeIPAConnection.lDAPConnection().modify(modifyRequest);
             }

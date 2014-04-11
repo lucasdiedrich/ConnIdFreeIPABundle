@@ -43,10 +43,13 @@ public class FreeIPAGroupDelete {
 
     private final Uid uid;
 
+    private final FreeIPAConfiguration freeIPAConfiguration;
+    
     private final FreeIPAConnection freeIPAConnection;
 
     public FreeIPAGroupDelete(final Uid uid, final FreeIPAConfiguration freeIPAConfiguration) {
         this.uid = uid;
+        this.freeIPAConfiguration = freeIPAConfiguration;
         this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
 
@@ -72,9 +75,12 @@ public class FreeIPAGroupDelete {
         LOG.info("Calling server to delete {0}", uid.getUidValue());
         
         try {
-            final String groupDn = FreeIPAGroupAccount.groupDN(uid.getUidValue());
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(groupDn,
-                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            final String groupDn = FreeIPAGroupAccount.groupDN(uid.getUidValue(), freeIPAConfiguration);
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    groupDn,
+                    SearchScope.BASE,
+                    freeIPAConfiguration.getGroupSearchFilter(),
+                    LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
                 freeIPAConnection.lDAPConnection().delete(groupDn);
             }

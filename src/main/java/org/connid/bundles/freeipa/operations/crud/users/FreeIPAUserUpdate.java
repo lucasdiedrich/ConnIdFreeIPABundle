@@ -114,8 +114,11 @@ public class FreeIPAUserUpdate {
         LOG.info("Calling server to modify {0}", modifyRequest.getDN());
 
         try {
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(modifyRequest.getDN(),
-                    SearchScope.BASE, "uid=*", LDAPConstants.OBJECT_CLASS_STAR);
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    modifyRequest.getDN(),
+                    SearchScope.BASE,
+                    freeIPAConfiguration.getAccountSearchFilter(),
+                    LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
                 freeIPAConnection.lDAPConnection().modify(modifyRequest);
             }

@@ -25,7 +25,6 @@ package org.connid.bundles.freeipa.it;
 import com.unboundid.ldap.sdk.LDAPException;
 import java.security.GeneralSecurityException;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
-import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.beans.server.FreeIPAIpaUsersGroup;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class FreeIPAIpaUsersGroupTest {
     public void posixIDsTest() throws GeneralSecurityException, LDAPException, InterruptedException {
         final FreeIPAConfiguration freeIPAConfiguration = SampleConfigurationFactory.
                 configurationWithRightUsernameAndPassword();
-        final FreeIPAIpaUsersGroup fipaiug = new FreeIPAIpaUsersGroup(new FreeIPAConnection(freeIPAConfiguration));
+        final FreeIPAIpaUsersGroup fipaiug = new FreeIPAIpaUsersGroup(freeIPAConfiguration);
         final String testDn = "uid=test.test,cn=users,cn=accounts,dc=tirasa,dc=net";
         fipaiug.addMember(testDn);
         fipaiug.removeMember(testDn);

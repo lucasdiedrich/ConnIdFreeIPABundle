@@ -62,17 +62,29 @@ public class SampleConfigurationFactory {
         freeIPAConfiguration.setSsl(
                 Boolean.valueOf(freeipaServerProperties.getString("freeipa.server.ldap.protocol.ssl")));
         if (freeIPAConfiguration.isSsl()) {
-            freeIPAConfiguration.setHost(freeipaServerProperties.getString("freeipa.server.ldap.protocol.port"));
+            freeIPAConfiguration.setPort(Integer.valueOf(
+                    freeipaServerProperties.getString("freeipa.server.ldaps.protocol.port")).intValue());
         } else {
-            freeIPAConfiguration.setHost(freeipaServerProperties.getString("freeipa.server.ldaps.protocol.port"));
+            freeIPAConfiguration.setPort(Integer.valueOf(
+                    freeipaServerProperties.getString("freeipa.server.ldap.protocol.port")).intValue());
         }
         
-        freeIPAConfiguration.setBaseContexts(freeipaServerProperties.getString("freeipa.server.tree.basecontext"));
-        freeIPAConfiguration.setHost(freeipaServerProperties.getString("freeipa.server.host"));
-        freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
-        freeIPAConfiguration.setUidAttribute(freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
+        freeIPAConfiguration.setRootSuffix(freeipaServerProperties.getString("freeipa.server.tree.rootsuffix"));
+        freeIPAConfiguration.setUserBaseContextsToSynchronize(
+                new String[]{freeipaServerProperties.getString("freeipa.server.tree.user.basecontext.tosync")});
+        freeIPAConfiguration.setGroupBaseContextsToSynchronize(
+                new String[]{freeipaServerProperties.getString("freeipa.server.tree.group.basecontext.tosync")});
+        freeIPAConfiguration.setUidAttribute(
+                freeipaServerProperties.getString("freeipa.server.tree.users.attributes.uid"));
+        freeIPAConfiguration.setCnAttribute(
+                freeipaServerProperties.getString("freeipa.server.tree.group.attributes.cn"));
         freeIPAConfiguration.setKerberosRealm(freeipaServerProperties.getString("freeipa.server.kerberos.realm"));
-        freeIPAConfiguration.setServerBaseHomeDirectory(freeipaServerProperties.getString("freeipa.server.base.home.directory"));
+        freeIPAConfiguration.setServerBaseHomeDirectory(
+                freeipaServerProperties.getString("freeipa.server.base.home.directory"));
+        freeIPAConfiguration.setAccountSearchFilter(
+                freeipaServerProperties.getString("freeipa.server.tree.users.search.filter"));
+        freeIPAConfiguration.setGroupSearchFilter(
+                freeipaServerProperties.getString("freeipa.server.tree.groups.search.filter"));
         return freeIPAConfiguration;
     }
 }

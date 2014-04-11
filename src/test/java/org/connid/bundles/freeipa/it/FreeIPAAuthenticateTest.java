@@ -80,7 +80,7 @@ public class FreeIPAAuthenticateTest {
         final Uid authUid = freeIPAConnector.authenticate(
                 ObjectClass.ACCOUNT, createdUid.getUidValue(), UserAttributesTestValue.userPassword, null);
         System.out.println(">>>>>>>>>>>>>>>> ENABLED: " + FreeIPAUserAccount.isEnabled(authUid.getUidValue(),
-                new FreeIPAConnection(SampleConfigurationFactory.configurationWithRightUsernameAndPassword())));
+                SampleConfigurationFactory.configurationWithRightUsernameAndPassword()));
         Assert.assertEquals(createdUid, authUid);
         final Set<Attribute> attributes = sampleSetAttributes();
         attributes.add(AttributeBuilder.buildPassword(UserAttributesTestValue.newUserPassword));

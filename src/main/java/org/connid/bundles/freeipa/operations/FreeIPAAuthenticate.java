@@ -27,6 +27,7 @@ import java.util.Map;
 import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.exceptions.FreeIPAException;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.connid.bundles.ldap.search.LdapSearches;
 import org.identityconnectors.common.logging.Log;
 import org.identityconnectors.common.security.GuardedString;
@@ -94,19 +95,18 @@ public class FreeIPAAuthenticate {
         final String uidAttribute = freeIPAConfiguration.getUidAttribute();
         Map<String, ConnectorObject> entryDN2Object = new HashMap<String, ConnectorObject>();
 
-        for (String baseContext : freeIPAConfiguration.getBaseContexts()) {
-            final Attribute attr = AttributeBuilder.build(uidAttribute, username);
+        final Attribute attr = AttributeBuilder.build(uidAttribute, username);
 
-            for (ConnectorObject object : LdapSearches.findObjects(freeIPAConnection, objectClass, baseContext, attr,
-                    "entryDN")) {
-                String entryDN = object.getAttributeByName("entryDN").getValue().get(0).toString();
-                entryDN2Object.put(entryDN, object);
-            }
+        for (ConnectorObject object : LdapSearches.findObjects(freeIPAConnection, objectClass,
+                LDAPConstants.USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix(),
+                attr, "entryDN")) {
+            String entryDN = object.getAttributeByName("entryDN").getValue().get(0).toString();
+            entryDN2Object.put(entryDN, object);
+        }
 
-            // If we found more than one authentication candidates, no need to continue
-            if (entryDN2Object.size() > 1) {
-                throw new ConnectorSecurityException(freeIPAConnection.format("moreThanOneEntryMatched", null, username));
-            }
+        // If we found more than one authentication candidates, no need to continue
+        if (entryDN2Object.size() > 1) {
+            throw new ConnectorSecurityException(freeIPAConnection.format("moreThanOneEntryMatched", null, username));
         }
 
         return !entryDN2Object.isEmpty() ? entryDN2Object.values().iterator().next() : null;

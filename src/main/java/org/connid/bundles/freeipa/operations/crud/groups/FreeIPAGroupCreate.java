@@ -123,8 +123,11 @@ public class FreeIPAGroupCreate {
         LOG.info("Dn group account {0}", freeIPAGroupAccount.getDn());
 
         try {
-            final SearchResult sr = freeIPAConnection.lDAPConnection().search(freeIPAGroupAccount.getDn(),
-                    SearchScope.BASE, "cn=*", LDAPConstants.OBJECT_CLASS_STAR);
+            final SearchResult sr = freeIPAConnection.lDAPConnection().search(
+                    freeIPAGroupAccount.getDn(),
+                    SearchScope.BASE, 
+                    freeIPAConfiguration.getGroupSearchFilter(),
+                    LDAPConstants.OBJECT_CLASS_STAR);
             if (ResultCode.SUCCESS.equals(sr.getResultCode())) {
                 throw new ConnectorException(String.format("Group %s already exists", nameAttr.getNameValue()));
             }

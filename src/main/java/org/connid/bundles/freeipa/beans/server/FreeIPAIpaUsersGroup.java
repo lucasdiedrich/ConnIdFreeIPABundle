@@ -28,36 +28,40 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import java.security.GeneralSecurityException;
+import org.connid.bundles.freeipa.FreeIPAConfiguration;
 import org.connid.bundles.freeipa.FreeIPAConnection;
+import org.connid.bundles.freeipa.util.client.LDAPConstants;
 import org.identityconnectors.common.logging.Log;
 
 public class FreeIPAIpaUsersGroup {
     
-    private static final Log LOG = Log.getLog(FreeIPAGroupAccount.class);
+    private static final Log LOG = Log.getLog(FreeIPAIpaUsersGroup.class);
+
+    private final FreeIPAConfiguration freeIPAConfiguration;
     
-    private static final String IPA_USERS_GROUP_DN = "cn=ipausers,cn=groups,cn=accounts,dc=tirasa,dc=net";
-
-    private static final String MEMBER_ATTRIBUTE = "member";
-
     private final FreeIPAConnection freeIPAConnection;
 
-    public FreeIPAIpaUsersGroup(final FreeIPAConnection freeIPAConnection) {
-        this.freeIPAConnection = freeIPAConnection;
+    public FreeIPAIpaUsersGroup(final FreeIPAConfiguration freeIPAConfiguration) {
+        this.freeIPAConfiguration = freeIPAConfiguration;
+        this.freeIPAConnection = new FreeIPAConnection(freeIPAConfiguration);
     }
     
     public void addMember(final String newMemberDn) throws LDAPException, GeneralSecurityException {
         LOG.info("Adding member {0} to ipausers group", newMemberDn);
         final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
-        lDAPConnection.modify(new ModifyRequest(IPA_USERS_GROUP_DN, new Modification(
-                ModificationType.ADD, MEMBER_ATTRIBUTE, String.valueOf(newMemberDn))));
+        lDAPConnection.modify(new ModifyRequest(
+                LDAPConstants.IPA_USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix(),
+                new Modification(ModificationType.ADD, LDAPConstants.MEMBER_ATTRIBUTE, String.valueOf(newMemberDn))));
         lDAPConnection.close();
     }
     
     public void removeMember(final String existsMemberDn) throws LDAPException, GeneralSecurityException {
         LOG.info("Removing member {0} to ipausers group", existsMemberDn);
         final LDAPConnection lDAPConnection = freeIPAConnection.lDAPConnection();
-        lDAPConnection.modify(new ModifyRequest(IPA_USERS_GROUP_DN, new Modification(
-                ModificationType.DELETE, MEMBER_ATTRIBUTE, String.valueOf(existsMemberDn))));
+        lDAPConnection.modify(new ModifyRequest(
+                LDAPConstants.IPA_USERS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix(),
+                new Modification(ModificationType.DELETE, LDAPConstants. MEMBER_ATTRIBUTE,
+                        String.valueOf(existsMemberDn))));
         lDAPConnection.close();
     }
 
