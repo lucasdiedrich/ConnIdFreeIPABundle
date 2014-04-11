@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.connid.bundles.ldap.LdapConfiguration;
 import org.identityconnectors.common.logging.Log;
-import org.identityconnectors.framework.spi.AbstractConfiguration;
 
 public class FreeIPAConfigurationBeanInfo extends SimpleBeanInfo {
 
@@ -39,88 +38,37 @@ public class FreeIPAConfigurationBeanInfo extends SimpleBeanInfo {
     public PropertyDescriptor[] getPropertyDescriptors() {
         final List<PropertyDescriptor> props = new ArrayList<PropertyDescriptor>();
         try {
-            // trustAllCerts
             props.add(new PropertyDescriptor("trustAllCerts", FreeIPAConfiguration.class));
-            
-            // ssl
+            props.add(new PropertyDescriptor("kerberosRealm", FreeIPAConfiguration.class));
+            props.add(new PropertyDescriptor("serverBaseHomeDirectory", FreeIPAConfiguration.class));
             props.add(new PropertyDescriptor("ssl", LdapConfiguration.class));
-
-            // host
             props.add(new PropertyDescriptor("host", LdapConfiguration.class));
-
-            // port
             props.add(new PropertyDescriptor("port", LdapConfiguration.class));
-
-            // principal
             props.add(new PropertyDescriptor("principal", LdapConfiguration.class));
-
-            // uidAttribute
             props.add(new PropertyDescriptor("uidAttribute", LdapConfiguration.class));
-
-            // credentials
             props.add(new PropertyDescriptor("credentials", LdapConfiguration.class));
-
-            // membershipsInOr
-            props.add(new PropertyDescriptor("membershipsInOr", LdapConfiguration.class));
-
-            // loading
-            props.add(new PropertyDescriptor("loading", LdapConfiguration.class));
-
-            // failover
             props.add(new PropertyDescriptor("failover", LdapConfiguration.class));
-
-            // baseContextsToSynchronize
-            props.add(new PropertyDescriptor("baseContextsToSynchronize", LdapConfiguration.class));
-
-            // userBaseContexts
-            props.add(new PropertyDescriptor("userBaseContexts", LdapConfiguration.class));
-
-            // groupBaseContexts
-            props.add(new PropertyDescriptor("groupBaseContexts", LdapConfiguration.class));
-
-            // baseContexts
-            props.add(new PropertyDescriptor("defaultPeopleContainer", LdapConfiguration.class));
-
-            // defaultGroupContainer
-            props.add(new PropertyDescriptor("defaultGroupContainer", LdapConfiguration.class));
-
-            // memberships
-            props.add(new PropertyDescriptor("memberships", LdapConfiguration.class));
-
-            // accountSearchFilter
+            props.add(new PropertyDescriptor("baseContexts", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("passwordAttribute", LdapConfiguration.class));
             props.add(new PropertyDescriptor("accountSearchFilter", LdapConfiguration.class));
-
-            // groupSearchFilter
-            props.add(new PropertyDescriptor("groupSearchFilter", LdapConfiguration.class));
-
-            // retrieveDeletedUser
-            props.add(new PropertyDescriptor("retrieveDeletedUser", LdapConfiguration.class));
-
-            // retrieveDeletedGroup
-            props.add(new PropertyDescriptor("retrieveDeletedGroup", LdapConfiguration.class));
-
-            // accountObjectClasses
-            props.add(new PropertyDescriptor("accountObjectClasses", LdapConfiguration.class));
-
-            // objectClassesToSynchronize
-            props.add(new PropertyDescriptor("objectClassesToSynchronize", LdapConfiguration.class));
-
-            // _connectorMessages
-            props.add(new PropertyDescriptor("connectorMessages", AbstractConfiguration.class));
-
-            // userSearchScope
-            props.add(new PropertyDescriptor("userSearchScope", LdapConfiguration.class));
-
-            // groupSearchScope
-            props.add(new PropertyDescriptor("groupSearchScope", LdapConfiguration.class));
-
-            // groupOwnerReferenceAttribute
-            props.add(new PropertyDescriptor("groupOwnerReferenceAttribute", LdapConfiguration.class));
-
-            // groupMemberReferenceAttribute
-            props.add(new PropertyDescriptor("groupMemberReferenceAttribute", LdapConfiguration.class));
-            // startSyncFromToday
-            props.add(new PropertyDescriptor("startSyncFromToday", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("groupMemberAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("maintainLdapGroupMembership", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("maintainPosixGroupMembership", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("respectResourcePasswordPolicyChangeAfterReset", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("useBlocks", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("blockSize", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("usePagedResultControl", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("vlvSortAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("readSchema", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("uidAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("baseContextsToSynchronize", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("accountSynchronizationFilter", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("changeLogBlockSize", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("changeNumberAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("passwordAttributeToSynchronize", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("synchronizePasswords", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("dnAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("retrievePasswordsWithSearch", LdapConfiguration.class));
         } catch (IntrospectionException e) {
             LOG.error(e, "Failure retrieving properties");
             props.clear();
