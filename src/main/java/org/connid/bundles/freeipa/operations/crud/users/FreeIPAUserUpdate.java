@@ -95,6 +95,7 @@ public class FreeIPAUserUpdate {
         String password = "";
         Boolean attrStatus = null;
         for (final Attribute attribute : attrs) {
+            LOG.info("Found attribute {0} to update", attribute.getName());
             if (attribute.is(OperationalAttributes.PASSWORD_NAME)) {
                 password = ConnectorUtils.getPlainPassword((GuardedString) attribute.getValue().get(0));
             } else if (attribute.is(OperationalAttributes.ENABLE_NAME)) {

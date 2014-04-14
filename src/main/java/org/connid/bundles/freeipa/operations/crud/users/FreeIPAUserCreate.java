@@ -127,7 +127,7 @@ public class FreeIPAUserCreate {
                         posixIDsNumber, null, freeIPAConfiguration);
 
         final AddRequest addRequest = freeIPAUserAccount.toAddRequest();
-
+        
         if (!otherAttributes.isEmpty()) {
             freeIPAUserAccount.fillOtherAttributesToAddRequest(otherAttributes, addRequest);
         }

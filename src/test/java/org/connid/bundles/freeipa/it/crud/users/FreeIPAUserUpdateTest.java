@@ -23,16 +23,13 @@
 package org.connid.bundles.freeipa.it.crud.users;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
-import com.unboundid.ldap.sdk.ExtendedRequest;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedRequest;
-import com.unboundid.ldap.sdk.extensions.PasswordModifyExtendedResult;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.FreeIPAConnector;
 import org.connid.bundles.freeipa.commons.SampleConfigurationFactory;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
@@ -79,14 +76,23 @@ public class FreeIPAUserUpdateTest {
                 ObjectClass.ACCOUNT, SampleAttributesFactory.sampleUserSetAttributes(name), null);
         assertEquals(name.getNameValue(), uid.getUidValue());
         usersCreated.add(name.getNameValue());
-        Set<Attribute> attributes = sampleSetAttributes();
+        final Set<Attribute> attributes = sampleSetAttributes();
         attributes.add(AttributeBuilder.buildPassword(UserAttributesTestValue.newUserPassword));
-//        
-//        PasswordModifyExtendedRequest r = new PasswordModifyExtendedRequest("newpassword");
-//        FreeIPAConnection freeIPAConnection =
-//                new FreeIPAConnection(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
-//        freeIPAConnection.lDAPConnection().processExtendedOperation(r);
-        freeIPAConnector.update(ObjectClass.ACCOUNT, uid, attributes, null);
+        final Uid updatedUid = freeIPAConnector.update(ObjectClass.ACCOUNT, uid, attributes, null);
+        assertEquals(uid, updatedUid);
+    }
+    
+    @Test
+    public void statusUpdateTest() throws GeneralSecurityException, LDAPException {
+        final Name name = new Name(UserAttributesTestValue.uid + (int) (Math.random() * 100000));
+        final Uid uid = freeIPAConnector.create(
+                ObjectClass.ACCOUNT, SampleAttributesFactory.sampleUserSetAttributes(name), null);
+        assertEquals(name.getNameValue(), uid.getUidValue());
+        usersCreated.add(name.getNameValue());
+        final Uid updatedUid = freeIPAConnector.update(ObjectClass.ACCOUNT, uid, sampleSetAttributes(), null);
+        assertEquals(uid, updatedUid);
+        assertFalse(FreeIPAUserAccount.isEnabled(updatedUid.getUidValue(),
+                        SampleConfigurationFactory.configurationWithRightUsernameAndPassword()));
     }
 
     private Set<Attribute> sampleSetAttributes() {
@@ -161,13 +167,13 @@ public class FreeIPAUserUpdateTest {
         }
     }
 
-//    @AfterClass
-//    public static void deleteCreatedUser() {
-//        final FreeIPAConnector fipac = new FreeIPAConnector();
-//        fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
-//        for (final String uid : usersCreated) {
-//            fipac.delete(ObjectClass.ACCOUNT, new Uid(uid), null);
-//        }
-//        freeIPAConnector.dispose();
-//    }
+    @AfterClass
+    public static void deleteCreatedUser() {
+        final FreeIPAConnector fipac = new FreeIPAConnector();
+        fipac.init(SampleConfigurationFactory.configurationWithRightUsernameAndPassword());
+        for (final String uid : usersCreated) {
+            fipac.delete(ObjectClass.ACCOUNT, new Uid(uid), null);
+        }
+        freeIPAConnector.dispose();
+    }
 }

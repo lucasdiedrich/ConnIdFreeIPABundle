@@ -240,11 +240,13 @@ public class FreeIPAUserAccount {
         List<String> stringAttributes;
         for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
             stringAttributes = new ArrayList<String>();
-            for (final Object object : attr.getValue()) {
-                stringAttributes.add(object.toString());
+            if (attr.getValue() != null && !attr.getValue().isEmpty()) {
+                for (final Object object : attr.getValue()) {
+                    stringAttributes.add(object.toString());
+                }
+                attribute = new Attribute(attr.getKey(), stringAttributes);
+                addRequest.addAttribute(attribute);
             }
-            attribute = new Attribute(attr.getKey(), stringAttributes);
-            addRequest.addAttribute(attribute);
         }
     }
 

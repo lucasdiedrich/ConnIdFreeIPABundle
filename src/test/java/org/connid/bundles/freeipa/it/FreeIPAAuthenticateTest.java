@@ -29,7 +29,6 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.connid.bundles.freeipa.FreeIPAConnection;
 import org.connid.bundles.freeipa.FreeIPAConnector;
 import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.connid.bundles.freeipa.commons.SampleAttributesFactory;
@@ -79,22 +78,15 @@ public class FreeIPAAuthenticateTest {
         usersCreated.add(name.getNameValue());
         final Uid authUid = freeIPAConnector.authenticate(
                 ObjectClass.ACCOUNT, createdUid.getUidValue(), UserAttributesTestValue.userPassword, null);
-        System.out.println(">>>>>>>>>>>>>>>> ENABLED: " + FreeIPAUserAccount.isEnabled(authUid.getUidValue(),
-                SampleConfigurationFactory.configurationWithRightUsernameAndPassword()));
         Assert.assertEquals(createdUid, authUid);
         final Set<Attribute> attributes = sampleSetAttributes();
         attributes.add(AttributeBuilder.buildPassword(UserAttributesTestValue.newUserPassword));
-//        final Uid updatedUid = freeIPAConnector.update(ObjectClass.ACCOUNT, authUid, attributes, null);
-//        System.out.println(">>>>>>>>>>>>>>>> USER: "+ updatedUid.getUidValue()
-//                +"ENABLED: " + FreeIPAUserAccount.isEnabled(updatedUid.getUidValue(),
-//                new FreeIPAConnection(SampleConfigurationFactory.configurationWithRightUsernameAndPassword())));
-        final Uid newPasswordUid = freeIPAConnector.authenticate(
-                ObjectClass.ACCOUNT, authUid.getUidValue(), UserAttributesTestValue.userPassword, null);
-        Assert.assertEquals(authUid, newPasswordUid);
+        final Uid updatedUid = freeIPAConnector.update(ObjectClass.ACCOUNT, authUid, attributes, null);
+        Assert.assertEquals(authUid, updatedUid);
     }
 
     private Set<Attribute> sampleSetAttributes() {
-        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(false));
+        final Set attributes = CollectionUtil.newSet(AttributeBuilder.buildEnabled(true));
         attributes.add(AttributeBuilder.build(FreeIPAUserAccount.DefaultAttributes.INITIALS.ldapValue(),
                 CollectionUtil.newSet(UserAttributesTestValue.newInitials)));
         return attributes;
