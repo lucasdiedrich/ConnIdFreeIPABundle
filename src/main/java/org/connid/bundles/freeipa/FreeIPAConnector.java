@@ -33,7 +33,8 @@ import org.connid.bundles.freeipa.operations.crud.groups.FreeIPAGroupUpdate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserCreate;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserDelete;
 import org.connid.bundles.freeipa.operations.crud.users.FreeIPAUserUpdate;
-import org.connid.bundles.freeipa.operations.search.FreeIPAExecuteQuery;
+import org.connid.bundles.freeipa.operations.search.FreeIPAExecuteGroupQuery;
+import org.connid.bundles.freeipa.operations.search.FreeIPAExecuteUserQuery;
 import org.connid.bundles.ldap.LdapConnector;
 import org.connid.bundles.ldap.search.LdapFilter;
 import org.identityconnectors.common.logging.Log;
@@ -140,7 +141,14 @@ public class FreeIPAConnector extends LdapConnector {
     public void executeQuery(final ObjectClass oclass, final LdapFilter query,
             final ResultsHandler handler, final OperationOptions options) {
         LOG.info("Executing {0} ldap search to find {1}", oclass, query);
-        new FreeIPAExecuteQuery(oclass, query, handler, freeIPAConfiguration).executeQuery();
+        if (ObjectClass.ACCOUNT.equals(oclass)) {
+            new FreeIPAExecuteUserQuery(query, handler, freeIPAConfiguration).executeQuery();
+        }else if (ObjectClass.GROUP.equals(oclass)) {
+            new FreeIPAExecuteGroupQuery(query, handler, freeIPAConfiguration).executeQuery();
+        } else {
+            throw new ConnectorException("Object class not valid");
+        }
+        
         dispose();
     }
 

@@ -114,7 +114,7 @@ public class FreeIPAUserAccount {
         return dn;
     }
 
-    private enum DefaultObjectClasses {
+    public enum DefaultObjectClasses {
 
         TOP("top"),
         PERSON("person"),
@@ -179,6 +179,14 @@ public class FreeIPAUserAccount {
 
         public String ldapValue() {
             return ldapName;
+        }
+        
+        public static List<String> toList() {
+            final List<String> defaultAttributes = new ArrayList<String>();
+            for (final DefaultAttributes attribute : values()) {
+                defaultAttributes.add(attribute.toString());
+            }
+            return defaultAttributes;
         }
     }
 

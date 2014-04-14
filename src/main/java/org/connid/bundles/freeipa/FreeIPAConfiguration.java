@@ -22,7 +22,15 @@
  */
 package org.connid.bundles.freeipa;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import org.connid.bundles.freeipa.beans.server.FreeIPAGroupAccount;
+import org.connid.bundles.freeipa.beans.server.FreeIPAUserAccount;
 import org.connid.bundles.ldap.LdapConfiguration;
+import org.connid.bundles.ldap.commons.LdapConstants;
+import org.connid.bundles.ldap.commons.ObjectClassMappingConfig;
+import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.spi.ConfigurationProperty;
 
 public class FreeIPAConfiguration extends LdapConfiguration {
@@ -42,7 +50,28 @@ public class FreeIPAConfiguration extends LdapConfiguration {
     private String groupSearchFilter;
     
     private String cnAttribute;
+    
+    private final ObjectClassMappingConfig accountConfig = new ObjectClassMappingConfig(
+            ObjectClass.ACCOUNT,
+            FreeIPAUserAccount.DefaultObjectClasses.toList(),
+            false,
+            FreeIPAUserAccount.DefaultAttributes.toList(),
+            LdapConstants.PASSWORD);
 
+    private final ObjectClassMappingConfig groupConfig = new ObjectClassMappingConfig(
+            ObjectClass.GROUP,
+            FreeIPAGroupAccount.DefaultObjectClasses.toList(),
+            false,
+            Collections.<String>emptyList());
+
+    @Override
+    public Map<ObjectClass, ObjectClassMappingConfig> getObjectClassMappingConfigs() {
+        HashMap<ObjectClass, ObjectClassMappingConfig> result = new HashMap<ObjectClass, ObjectClassMappingConfig>();
+        result.put(accountConfig.getObjectClass(), accountConfig);
+        result.put(groupConfig.getObjectClass(), groupConfig);
+        return result;
+    }
+    
     @ConfigurationProperty(displayMessageKey = "trustallcerts.display",
             helpMessageKey = "trustallcerts.help", order = 1)
     public boolean isTrustAllCerts() {

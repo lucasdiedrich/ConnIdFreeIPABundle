@@ -67,21 +67,28 @@ public class FreeIPASchema {
     }
     
     private Schema doSchema() throws GeneralSecurityException, LDAPException {
-        final Set<AttributeInfo> attributes = new HashSet<AttributeInfo>();
+        final Set<AttributeInfo> userAttributes = new HashSet<AttributeInfo>();
         
         for (final AttributeTypeDefinition attributeTypeDefinition :
                 freeIPAConnection.lDAPConnection().getSchema().getUserAttributeTypes()) {
-            attributes.add(buildAttribute(attributeTypeDefinition.getNameOrOID()));
+            userAttributes.add(buildAttribute(attributeTypeDefinition.getNameOrOID()));
         }
 
         final SchemaBuilder schemaBld = new SchemaBuilder(FreeIPAConnector.class);
 
         final ObjectClassInfoBuilder objectclassInfoBuilder = new ObjectClassInfoBuilder();
         objectclassInfoBuilder.setType(ObjectClass.ACCOUNT_NAME);
-        objectclassInfoBuilder.addAllAttributeInfo(attributes);
+        objectclassInfoBuilder.addAllAttributeInfo(userAttributes);
 
         final ObjectClassInfo objectclassInfo = objectclassInfoBuilder.build();
         schemaBld.defineObjectClass(objectclassInfo);
+        
+        final ObjectClassInfoBuilder objectclassGroupInfoBuilder = new ObjectClassInfoBuilder();
+        objectclassGroupInfoBuilder.setType(ObjectClass.GROUP_NAME);
+        objectclassGroupInfoBuilder.addAllAttributeInfo(userAttributes);
+
+        final ObjectClassInfo objectclassGroupInfo = objectclassGroupInfoBuilder.build();
+        schemaBld.defineObjectClass(objectclassGroupInfo);
         return schemaBld.build();
     }
     

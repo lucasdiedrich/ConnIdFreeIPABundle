@@ -39,7 +39,7 @@ import org.identityconnectors.framework.common.objects.Uid;
 public class FreeIPAGroupAccount {
 
     private static final Log LOG = Log.getLog(FreeIPAGroupAccount.class);
-    
+
     private final String dn;
 
     private final List<String> objectClasses;
@@ -63,7 +63,7 @@ public class FreeIPAGroupAccount {
         return dn;
     }
 
-    private enum DefaultObjectClasses {
+    public enum DefaultObjectClasses {
 
         TOP("top"),
         GROUP_OF_NAMES("groupofnames"),
@@ -117,7 +117,6 @@ public class FreeIPAGroupAccount {
         final Attribute commonName = new Attribute(DefaultAttributes.CN.ldapValue(), this.cn);
         final Attribute gidnumber = new Attribute(DefaultAttributes.GID_NUMBER.ldapValue(), this.gidNumber);
         final Attribute groupDescription = new Attribute(DefaultAttributes.DESCRIPTION.ldapValue(), this.description);
-        
 
         final Collection<Attribute> attributes = new ArrayList();
         attributes.add(oc);
@@ -141,11 +140,13 @@ public class FreeIPAGroupAccount {
         List<String> stringAttributes;
         for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
             stringAttributes = new ArrayList<String>();
-            for (final Object object : attr.getValue()) {
-                stringAttributes.add(object.toString());
+            if (attr.getValue() != null && !attr.getValue().isEmpty()) {
+                for (final Object object : attr.getValue()) {
+                    stringAttributes.add(object.toString());
+                }
+                attribute = new Attribute(attr.getKey(), stringAttributes);
+                addRequest.addAttribute(attribute);
             }
-            attribute = new Attribute(attr.getKey(), stringAttributes);
-            addRequest.addAttribute(attribute);
         }
     }
 
