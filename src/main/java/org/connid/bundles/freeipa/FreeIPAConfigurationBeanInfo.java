@@ -56,6 +56,9 @@ public class FreeIPAConfigurationBeanInfo extends SimpleBeanInfo {
             props.add(new PropertyDescriptor("passwordAttribute", LdapConfiguration.class));
             props.add(new PropertyDescriptor("accountSearchFilter", LdapConfiguration.class));
             props.add(new PropertyDescriptor("groupMemberAttribute", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("maintainLdapGroupMembership", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("maintainPosixGroupMembership", LdapConfiguration.class));
+            props.add(new PropertyDescriptor("retrievePasswordsWithSearch", LdapConfiguration.class));
             props.add(new PropertyDescriptor("useBlocks", LdapConfiguration.class));
             props.add(new PropertyDescriptor("blockSize", LdapConfiguration.class));
             props.add(new PropertyDescriptor("usePagedResultControl", LdapConfiguration.class));

@@ -80,6 +80,7 @@ public class FreeIPAConfiguration extends LdapConfiguration {
     }
 
     public void setRootSuffix(final String rootSuffix) {
+        super.setBaseContexts(rootSuffix);
         this.rootSuffix = rootSuffix;
     }
 
@@ -90,6 +91,7 @@ public class FreeIPAConfiguration extends LdapConfiguration {
     }
 
     public void setUserBaseContextsToSynchronize(final String[] userBaseContextsToSynchronize) {
+        super.setBaseContextsToSynchronize(userBaseContextsToSynchronize);
         this.userBaseContextsToSynchronize = userBaseContextsToSynchronize;
     }
 
