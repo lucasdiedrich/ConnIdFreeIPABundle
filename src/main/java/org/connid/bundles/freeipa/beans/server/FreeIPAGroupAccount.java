@@ -157,12 +157,14 @@ public class FreeIPAGroupAccount {
         final String dn = groupDN(uid.getUidValue(), freeIPAConfiguration);
         String[] stringAttributes;
         for (final Map.Entry<String, List<Object>> attr : otherAttributes.entrySet()) {
-            stringAttributes = new String[attr.getValue().size()];
-            for (int i = 0; i < attr.getValue().size(); i++) {
-                stringAttributes[i] = attr.getValue().get(i).toString();
+            if (attr.getValue() != null && !attr.getValue().isEmpty()) {
+                stringAttributes = new String[attr.getValue().size()];
+                for (int i = 0; i < attr.getValue().size(); i++) {
+                    stringAttributes[i] = attr.getValue().get(i).toString();
+                }
+                LOG.info("Creating new modification for {0} with value {1}", attr.getKey(), stringAttributes);
+                modifications.add(new Modification(ModificationType.REPLACE, attr.getKey(), stringAttributes));
             }
-            LOG.info("Creating new modification for {0} with value {1}", attr.getKey(), stringAttributes);
-            modifications.add(new Modification(ModificationType.REPLACE, attr.getKey(), stringAttributes));
         }
         return new ModifyRequest(dn, modifications);
     }

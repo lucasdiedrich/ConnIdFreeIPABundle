@@ -148,7 +148,6 @@ public class FreeIPAConnector extends LdapConnector {
         } else {
             throw new ConnectorException("Object class not valid");
         }
-        
         dispose();
     }
 

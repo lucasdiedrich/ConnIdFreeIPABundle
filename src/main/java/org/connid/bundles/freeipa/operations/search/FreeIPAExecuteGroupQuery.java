@@ -82,7 +82,7 @@ public class FreeIPAExecuteGroupQuery {
                         freeIPAConfiguration.getGroupSearchFilter()));
             }
         } else {
-            final Filter filter = Filter.create(ldapFilter.getNativeFilter());
+            final Filter filter = Filter.create(ldapFilter.getNativeFilter().replaceFirst("uid", "cn"));
             LOG.info("Ldap search filter {0}", filter.toNormalizedString());
             fillUserHandler(freeIPAConnection.lDAPConnection().search(
                     LDAPConstants.GROUPS_DN_BASE_SUFFIX + "," + freeIPAConfiguration.getRootSuffix(),
