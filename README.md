@@ -1,28 +1,28 @@
-<!--
-
-    ====================
-    DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-
-    Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
-    Copyright 2011-2013 Tirasa. All rights reserved.
-
-    The contents of this file are subject to the terms of the Common Development
-    and Distribution License("CDDL") (the "License"). You may not use this file
-    except in compliance with the License.
-
-    You can obtain a copy of the License at https://oss.oracle.com/licenses/CDDL
-    See the License for the specific language governing permissions and limitations
-    under the License.
-
-    When distributing the Covered Code, include this CDDL Header Notice in each file
-    and include the License file at https://oss.oracle.com/licenses/CDDL.
-    If applicable, add the following below this CDDL Header, with the fields
-    enclosed by brackets [] replaced by your own identifying information:
-    "Portions Copyrighted [year] [name of copyright owner]"
-    ====================
-
--->
 ConnIdFreeIPABundle
-===================
+==============
 
-ConnId: [FreeIPA](http://www.freeipa.org/) bundle
+The [FreeIPA](http://www.freeipa.org/) bundle is part of the [ConnId](http://connid.tirasa.net) project.
+
+## How to get it
+
+### Maven
+
+```XML
+<dependency>
+  <groupId>org.connid.bundles</groupId>
+  <artifactId>org.connid.bundles.freeipa</artifactId>
+  <version>${connid.freeipa.version}</version>
+</dependency>
+```
+
+where `connid.freeipa.version` is one of [available](http://repo1.maven.org/maven2/org/connid/bundles/org.connid.bundles.freeipa/).
+
+### Downloads
+
+Available from [releases](https://github.com/Tirasa/ConnIdFreeIPABundle/releases).
+
+## Project information
+
+ * [wiki](https://connid.atlassian.net/wiki/display/BASE/FreeIPA)
+ * [issues](https://connid.atlassian.net/browse/FREEIPA)
+ * <a href="https://travis-ci.org/Tirasa/ConnIdFreeIPABundle"><img src="https://api.travis-ci.org/Tirasa/ConnIdFreeIPABundle.png"/></a>
