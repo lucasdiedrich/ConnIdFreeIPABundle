@@ -3,6 +3,11 @@ ConnIdFreeIPABundle
 
 The [FreeIPA](http://www.freeipa.org/) bundle is part of the [ConnId](http://connid.tirasa.net) project.
 
+<a href="https://travis-ci.org/Tirasa/ConnIdFreeIPABundle"><img src="https://api.travis-ci.org/Tirasa/ConnIdFreeIPABundle.png"/></a>
+<a href="https://maven-badges.herokuapp.com/maven-central/org.connid.bundles/org.connid.bundles.freeipa">
+  <img src="https://maven-badges.herokuapp.com/maven-central/org.connid.bundles/org.connid.bundles.freeipa/badge.svg"/>
+</a>
+
 ## How to get it
 
 ### Maven
@@ -25,4 +30,3 @@ Available from [releases](https://github.com/Tirasa/ConnIdFreeIPABundle/releases
 
  * [wiki](https://connid.atlassian.net/wiki/display/BASE/FreeIPA)
  * [issues](https://connid.atlassian.net/browse/FREEIPA)
- * <a href="https://travis-ci.org/Tirasa/ConnIdFreeIPABundle"><img src="https://api.travis-ci.org/Tirasa/ConnIdFreeIPABundle.png"/></a>
